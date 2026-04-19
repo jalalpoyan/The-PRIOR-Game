@@ -1479,36 +1479,32 @@ body.mobile-build::before{content:none}
 .touch-controls{
   position:fixed;left:0;right:0;bottom:0;z-index:14;display:none;
   justify-content:center;pointer-events:none;
-  padding:0 10px calc(env(safe-area-inset-bottom,0px) + 12px)
+  padding:0 0 calc(env(safe-area-inset-bottom,0px) + 12px)
 }
 .touch-controls.visible{display:flex}
 .touch-panel{
-  width:min(100vw,98vw);display:none;flex-direction:column;align-items:center;justify-content:center;
-  gap:0;pointer-events:auto;background:transparent;border:none;box-shadow:none;padding:0
+  width:100vw;display:none;flex-direction:column;align-items:center;justify-content:center;
+  gap:0;pointer-events:auto;background:transparent;border:none;box-shadow:none;padding:0;overflow:visible
 }
 .touch-panel.visible{display:flex}
 .touch-panel-hint{display:none}
 .touch-main-buttons,.touch-quest-buttons{
-  width:min(100vw,760px);
-  display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:nowrap;
-  padding:0 clamp(6px,2.2vw,16px)
-}
-.touch-main-buttons,
-.touch-quest-buttons{
-  justify-content:space-between;
+  position:relative;width:100vw;max-width:100vw;height:clamp(220px,30vh,290px);
+  display:block;padding:0;margin:0;overflow:visible
 }
 .touch-btn{
-  width:clamp(170px,46vw,220px);height:clamp(170px,46vw,220px);min-height:170px;min-width:170px;
-  padding:14px;border-radius:999px;border:1px solid rgba(255,255,255,0.20);
+  position:absolute;bottom:0;display:flex;align-items:center;justify-content:center;
+  width:clamp(208px,56vw,272px);height:clamp(208px,56vw,272px);min-height:208px;min-width:208px;
+  padding:16px;border-radius:999px;border:1px solid rgba(255,255,255,0.20);
   background:rgba(255,255,255,0.10);color:#eef7fa;font-family:'Rajdhani',sans-serif;
-  font-weight:700;font-size:clamp(24px,6vw,29px);letter-spacing:1.05px;text-transform:uppercase;
+  font-weight:700;font-size:clamp(27px,6.8vw,34px);letter-spacing:1.05px;text-transform:uppercase;
   text-align:center;line-height:1.05;white-space:normal;user-select:none;-webkit-user-select:none;
   touch-action:manipulation;box-shadow:0 12px 24px rgba(0,0,0,0.24)
 }
 .touch-main-buttons .touch-btn,
 .touch-quest-buttons .touch-btn{
-  width:clamp(170px,46vw,220px);height:clamp(170px,46vw,220px);min-width:170px;min-height:170px;
-  padding:14px;font-size:clamp(24px,6vw,29px);letter-spacing:1.05px;
+  width:clamp(208px,56vw,272px);height:clamp(208px,56vw,272px);min-width:208px;min-height:208px;
+  padding:16px;font-size:clamp(27px,6.8vw,34px);letter-spacing:1.05px;
   background:rgba(255,255,255,0.10);border-color:rgba(255,255,255,0.20);
 }
 .touch-main-buttons .touch-btn.low,
@@ -1518,20 +1514,31 @@ body.mobile-build::before{content:none}
   background:rgba(255,255,255,0.10);
   border-color:rgba(255,255,255,0.20);
 }
+.touch-main-buttons .touch-btn:first-child,
+.touch-quest-buttons .touch-btn:first-child{left:clamp(-22px,-5vw,-6px)}
+.touch-main-buttons .touch-btn:last-child,
+.touch-quest-buttons .touch-btn:last-child{right:clamp(-22px,-5vw,-6px)}
 .touch-btn.active,.touch-btn:active{transform:translateY(1px) scale(0.985);background:rgba(0,212,255,0.18);border-color:rgba(0,212,255,0.5)}
 @media (orientation: portrait){
   .touch-controls{padding:0 0 calc(env(safe-area-inset-bottom,0px) + 18px)}
-  .touch-main-buttons,.touch-quest-buttons{width:100vw;padding:0 clamp(2px,1.2vw,10px);gap:4px}
+  .touch-main-buttons,.touch-quest-buttons{height:clamp(228px,31vh,300px)}
   .touch-btn,.touch-main-buttons .touch-btn,.touch-quest-buttons .touch-btn{
-    width:clamp(176px,47.5vw,228px);height:clamp(176px,47.5vw,228px);min-width:176px;min-height:176px;
-    font-size:clamp(25px,6.3vw,30px);
+    width:clamp(214px,58vw,282px);height:clamp(214px,58vw,282px);min-width:214px;min-height:214px;
+    font-size:clamp(28px,7vw,35px);
+  }
+}
+@media (max-width: 430px){
+  .touch-main-buttons,.touch-quest-buttons{height:clamp(214px,30vh,270px)}
+  .touch-btn,.touch-main-buttons .touch-btn,.touch-quest-buttons .touch-btn{
+    width:clamp(198px,56vw,248px);height:clamp(198px,56vw,248px);min-width:198px;min-height:198px;
+    font-size:clamp(25px,6.6vw,31px);
   }
 }
 @media (max-width: 390px){
-  .touch-main-buttons,.touch-quest-buttons{padding:0 2px;gap:3px}
+  .touch-main-buttons,.touch-quest-buttons{height:clamp(206px,29vh,248px)}
   .touch-btn,.touch-main-buttons .touch-btn,.touch-quest-buttons .touch-btn{
-    width:clamp(162px,47vw,188px);height:clamp(162px,47vw,188px);min-width:162px;min-height:162px;
-    font-size:clamp(22px,5.9vw,26px);
+    width:clamp(186px,54vw,220px);height:clamp(186px,54vw,220px);min-width:186px;min-height:186px;
+    font-size:clamp(23px,6.1vw,28px);
   }
 }
 
