@@ -1460,8 +1460,7 @@ input[type=number].form-input::-webkit-inner-spin-button{opacity:0.4}
 
 
 
-/* Desktop build marker */
-body.desktop-build::before{content:'DESKTOP VERSION';position:fixed;top:10px;right:12px;z-index:12;font:700 11px/1 Rajdhani,sans-serif;letter-spacing:1.8px;color:#0d1620;background:rgba(254,209,0,0.92);padding:6px 10px;border-radius:999px;box-shadow:0 6px 16px rgba(0,0,0,.18)}
+/* Desktop build marker — label removed */
 
 </style>
 </head>
@@ -1938,7 +1937,7 @@ const CFG = {
   itiSec:            0.40,
   feedbackSec:       0.60,
   postRespWindowSec: 2.00,
-  confMaxSec:        1.3,
+  confMaxSec:        0.65,
   trainMinTrials:    40,
   trainMaxTrials:    120,
   trainAccThresh:    0.80,
@@ -2135,7 +2134,7 @@ const ALLOW_TEST_SHORTCUTS = true;
 const ALLOW_ESCAPE_FINISH_SHORTCUT = false;
 const LEADERBOARD_STORAGE_KEY = 'prior_lb_live_20260413';
 const USED_PID_STORAGE_KEY = 'prior_used_pids_live_20260413';
-const PID_PATTERN = /^[A-Za-z0-9_-]{3,20}$/;
+const PID_PATTERN = /^[A-Za-z0-9_ -]{3,30}$/;
 try { localStorage.removeItem('prior_lb'); } catch (e) {}
 
 function normalizeParticipantId(pid){
@@ -2630,9 +2629,13 @@ document.getElementById('btn-setup-next').addEventListener('click', () => {
     errEl.textContent = 'Please complete sex and age before continuing.';
     return;
   }
+  if (parseInt(age, 10) < 18) {
+    errEl.textContent = 'You must be 18 or older to participate.';
+    return;
+  }
 
   if (pidRaw && !PID_PATTERN.test(pidRaw)) {
-    errEl.textContent = 'Participant ID must be 3–20 characters and use only letters, numbers, hyphens, or underscores.';
+    errEl.textContent = 'Participant ID must be 3–30 characters and may contain letters, numbers, spaces, hyphens, or underscores.';
     return;
   }
   if (pidRaw && isParticipantIdTaken(pidRaw)) {
@@ -2726,11 +2729,11 @@ function emphasizeAWSBasicPhrases(root){
   const replacements = [
     {
       pattern: /When\s+you\s+hit\s+Play,\s+you\s+will\s+hear\s+three\s+sounds\s+separated\s+by\s+silences?\.\s*Simply\s+judge\s+WHICH\s+SOUND\s+WAS\s+SOFTEST\s*\(quietest\)\s*--\s*1,\s*2,\s*or\s*3\?\s*Test\s+sounds\s+can\s+only\s+be\s+played\s+once!/gi,
-      replace: 'Press Play to hear three sounds.\nSelect the softest sound: 1, 2, or 3.\nThe sounds can only be played once!'
+      replace: 'When you hit Play, you will hear three sounds separated by short pauses.\nSelect the softest sound: 1, 2, or 3.\nThe sounds can only be played once!'
     },
     {
       pattern: /When\s+you\s+hit\s+Play,\s+you\s+will\s+hear\s+three\s+sounds\s+separated\s+by\s+silences?\./gi,
-      replace: 'Press Play to hear three sounds.'
+      replace: 'When you hit Play, you will hear three sounds separated by short pauses.'
     },
     {
       pattern: /Simply\s+judge\s+WHICH\s+SOUND\s+WAS\s+SOFTEST\s*\(quietest\)\s*--\s*1,\s*2,\s*or\s*3\?/gi,
@@ -2742,11 +2745,11 @@ function emphasizeAWSBasicPhrases(root){
     },
     {
       pattern: /Press\s+the\s+button,\s+then\s+turn\s+up\s+the\s+volume\s+on\s+your\s+computer\s+until\s+the\s+calibration\s+noise\s+is\s+at\s+a\s+loud\s+but\s+comfortable\s+level\.?/gi,
-      replace: "Press the 'play' button, then turn up the volume on your computer until the noise is at a loud but comfortable level."
+      replace: "Press the 'play' button, then turn up the volume until it is at a loud but comfortable level."
     },
     {
       pattern: /Press\s+the\s+button,\s+then\s+turn\s+up\s+the\s+volume\s+on\s+until\s+the\s+noise\s+is\s+at\s+a\s+loud\s+but\s+comfortable\s+level\.?/gi,
-      replace: "Press the 'play' button, then turn up the volume on until the noise is at a loud but comfortable level."
+      replace: "Press the 'play' button, then turn up the volume until it is at a loud but comfortable level."
     },
     {
       pattern: /Play\s+the\s+calibration\s+sound\s+as\s+many\s+times\s+as\s+you\s+like\.?/gi,
