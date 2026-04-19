@@ -1479,17 +1479,24 @@ body.mobile-build::before{content:none}
 .touch-controls{
   position:fixed;left:0;right:0;bottom:0;z-index:14;display:none;
   justify-content:center;pointer-events:none;
-  padding:0 10px calc(env(safe-area-inset-bottom,0px) + 12px)
+  padding:0 0 calc(env(safe-area-inset-bottom,0px) + 18px)
 }
 .touch-controls.visible{display:flex}
 .touch-panel{
   width:min(430px,94vw);display:none;flex-direction:column;align-items:center;justify-content:center;
   gap:0;pointer-events:auto;background:transparent;border:none;box-shadow:none;padding:0
 }
+#touch-main-panel{width:min(100vw,520px)}
 .touch-panel.visible{display:flex}
 .touch-panel-hint{display:none}
 .touch-main-buttons,.touch-quest-buttons{
   display:flex;justify-content:center;align-items:center;gap:16px;flex-wrap:nowrap
+}
+.touch-main-buttons{
+  width:min(100vw,520px);
+  justify-content:space-between;
+  padding:0 clamp(18px,6vw,34px);
+  gap:14px;
 }
 .touch-btn{
   width:min(39vw,142px);height:min(39vw,142px);min-height:120px;min-width:120px;
@@ -1499,10 +1506,24 @@ body.mobile-build::before{content:none}
   text-align:center;line-height:1.05;white-space:normal;user-select:none;-webkit-user-select:none;
   touch-action:manipulation;box-shadow:0 12px 24px rgba(0,0,0,0.24)
 }
+.touch-main-buttons .touch-btn{
+  width:min(41vw,164px);height:min(41vw,164px);min-width:132px;min-height:132px;
+  padding:14px;font-size:clamp(20px,5.1vw,24px);letter-spacing:1.1px;
+}
+.touch-main-buttons .touch-btn.low,
+.touch-main-buttons .touch-btn.high{
+  background:rgba(255,255,255,0.10);
+  border-color:rgba(255,255,255,0.20);
+}
 .touch-btn.active,.touch-btn:active{transform:translateY(1px) scale(0.985);background:rgba(0,212,255,0.18);border-color:rgba(0,212,255,0.5)}
 .touch-btn.high{background:rgba(34,221,119,0.16);border-color:rgba(34,221,119,0.32)}
+.touch-main-buttons .touch-btn.high{background:rgba(255,255,255,0.10);border-color:rgba(255,255,255,0.20)}
 .touch-btn.quest-yes{background:rgba(34,221,119,0.18);border-color:rgba(34,221,119,0.34)}
 .touch-btn.quest-no{background:rgba(255,255,255,0.10)}
+@media (orientation: portrait){
+  .touch-controls{padding:0 0 calc(env(safe-area-inset-bottom,0px) + 22px)}
+  .touch-main-buttons{padding:0 clamp(20px,6.5vw,36px)}
+}
 
 
 #dev-skip-btn{
