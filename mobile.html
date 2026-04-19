@@ -2511,7 +2511,7 @@ if (devSkipBtn) {
 }
 
 let mainExperimentCompleted = false;
-let uploadStage = 'main'; // 'main' for first upload, 'questionnaire' for second
+let uploadStage = 'main'; // set to 'main' or 'questionnaire' before each upload
 let sessionBaseName = null; // locked on first upload so both uploads share the same folder
 let finalScreenPrepared = false;
 
@@ -3454,7 +3454,7 @@ document.getElementById('btn-caps-submit').addEventListener('click', () => {
   }
   capsData.completedAt = new Date().toISOString();
   if (mainExperimentCompleted) {
-    silentUploadBackground('questionnaire'); // Upload 2: full data with questionnaire, same folder
+    silentUploadBackground('questionnaire'); // Upload 2: questionnaire data with questionnaire, same folder
     openDebriefScreen();
   } else {
     showScreen('intro');
@@ -5179,7 +5179,7 @@ function buildRemoteUploadPayload(){
   }, null, 2);
   const manifestJSON = JSON.stringify(manifest, null, 2);
 
-  return {
+  const base = {
     schema_version: 1,
     export_type: 'prior_experiment_submission',
     upload_stage: uploadStage,
@@ -5190,8 +5190,18 @@ function buildRemoteUploadPayload(){
       age: participantAge || '',
       sex: participantSex || ''
     },
-    sheet_row: buildRemoteSummaryRow(),
-    text_files: {
+    sheet_row: buildRemoteSummaryRow()
+  };
+
+  if (uploadStage === 'questionnaire') {
+    base.text_files = {
+      'questionnaires/questionnaire_summary.csv': questionnaireSummaryCSV,
+      'questionnaires/caps_responses.csv': capsCSV,
+      'questionnaires/caps_full.json': capsJSON
+    };
+    base.image_data_urls = {};
+  } else {
+    base.text_files = {
       'README.txt': readmeTXT,
       'session_summary.csv': sessionSummaryCSV,
       'session_manifest_full.json': manifestJSON,
@@ -5204,17 +5214,16 @@ function buildRemoteUploadPayload(){
       'quest/quest_results_full.json': questResultsJSON,
       'quest/quest_log.txt': questLog,
       'quest/quest_trials.csv': questCSV,
-      'questionnaires/questionnaire_summary.csv': questionnaireSummaryCSV,
-      'questionnaires/caps_responses.csv': capsCSV,
-      'questionnaires/caps_full.json': capsJSON,
       'main/main_trials.csv': mainCSV,
       'main/main_trials_full.json': mainJSON
-    },
-    image_data_urls: {
+    };
+    base.image_data_urls = {
       'quest/quest_figure.png': questFigureDataUrl || '',
       'main/main_figure.png': mainFigureDataUrl || ''
-    }
-  };
+    };
+  }
+
+  return base;
 }
 
 async function uploadSessionPackageRemote(force=false){
@@ -5286,8 +5295,8 @@ async function uploadSessionPackageRemote(force=false){
 // Called twice: once after main experiment, once after questionnaire.
 // Both uploads share sessionBaseName so files land in the same Drive folder.
 function silentUploadBackground(stage) {
-  if (!remoteUploadConfigured()) return;
   uploadStage = stage || 'main';
+  if (!remoteUploadConfigured()) return;
   remoteUploadState.started  = false;
   remoteUploadState.finished = false;
   remoteUploadState.success  = false;
