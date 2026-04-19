@@ -1549,6 +1549,121 @@ body.mobile-build #screen-quest-intro .logo{display:block !important;visibility:
 #dev-skip-btn:active{transform:translateY(1px) scale(0.985)}
 #dev-skip-btn.hidden{display:none}
 
+/* ═══════════════════════════════════════════════════════════
+   PHONE-OPTIMISED OVERRIDES
+   ═══════════════════════════════════════════════════════════ */
+
+/* Safe-area aware overlay */
+#overlay{
+  padding: calc(env(safe-area-inset-top, 0px) + 68px) 12px calc(env(safe-area-inset-bottom, 0px) + 20px);
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Screens fill more width */
+.screen{ width: min(600px, 98vw); gap: 12px; padding: 12px 0 20px; }
+
+/* Buttons: full-width, tall, rounded, no flash */
+.btn{
+  width: 100%;
+  min-height: 60px;
+  padding: 16px 24px;
+  font-size: 22px;
+  border-radius: 14px;
+  letter-spacing: 0.5px;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Stack btn-rows vertically */
+.btn-row{ flex-direction: column; align-items: stretch; gap: 10px; width: 100%; }
+.btn-row .btn-secondary, .btn-row .btn-danger{ order: 2; min-height: 50px; font-size: 18px; opacity: 0.85; }
+.btn-row .btn-primary{ order: 1; }
+button.btn-primary{ width: 100%; }
+
+/* Forms: prevent iOS zoom (needs >=16px), bigger tap area */
+.form-input{ font-size: 18px !important; padding: 16px 16px !important; border-radius: 10px !important; min-height: 54px; }
+.form-label{ font-size: 14px !important; }
+
+/* Radio: single column */
+.radio-group{ flex-direction: column; gap: 10px; }
+.radio-option{ min-width: 0; width: 100%; padding: 14px 18px; border-radius: 10px; }
+.radio-option span{ font-size: 18px; }
+
+/* Cards */
+.card{ padding: 16px 16px; border-radius: 14px; }
+
+/* Instructions */
+.instr-item{ font-size: 17px !important; line-height: 1.55 !important; padding: 14px 16px !important; border-radius: 10px; gap: 12px; }
+.instr-icon{ font-size: 22px !important; margin-top: 0 !important; }
+
+/* Questionnaire */
+.questionnaire-scroll{ max-height: 52vh; }
+.q-question{ font-size: 18px; line-height: 1.6; }
+.q-yn-pill{ padding: 14px 18px; font-size: 17px; border-radius: 12px; }
+.q-likert label span{ width: 38px; height: 38px; }
+
+/* Doc windows */
+.doc-window{ max-height: 65vh; padding: 14px; }
+.doc-window-bar{ padding: 10px 14px; border-radius: 10px; }
+.doc-screen{ max-height: 96vh; }
+
+/* Progress bar: compact */
+#overall-progress{ padding: 7px 14px 8px; border-radius: 14px; width: min(98vw, calc(100vw - 16px)); }
+#overall-progress-text{ font-size: 11px; }
+
+/* Setup */
+.setup-requirement{ border-radius: 12px; padding: 16px 16px; }
+.setup-requirement-text{ font-size: 17px !important; }
+.setup-requirement-icon{ width: 48px; height: 48px; flex: 0 0 48px; }
+
+/* Logo */
+.logo{ font-size: clamp(26px, 6vw, 44px) !important; letter-spacing: 2px; }
+
+/* Error messages */
+.error-msg{ font-size: 15px; min-height: 20px; }
+
+/* Headphone check */
+.awsbasic-host{ max-height: 58vh; }
+
+/* Override per-screen btn size reductions */
+#screen-intro #btn-intro-start,
+#screen-intro .btn,
+#screen-quest-prep .btn,
+#screen-quest-intro .btn,
+#screen-quest-intro #btn-quest-start,
+#screen-quest-intro #btn-quest-playtone{
+  font-size: 22px !important;
+  padding: 16px 24px !important;
+  min-height: 60px !important;
+  width: 100% !important;
+  border-radius: 14px !important;
+}
+
+/* Demo tone buttons: stacked */
+#screen-intro .intro-sample-buttons{ flex-direction: column; gap: 12px; }
+#screen-intro #btn-demo-common,
+#screen-intro #btn-demo-rare{ min-width: 0 !important; width: 100% !important; font-size: 20px !important; padding: 16px 20px !important; }
+
+/* Quest-intro stacked */
+#screen-quest-intro .quest-preview-wrap, #screen-quest-intro .quest-start-wrap{ width: 100%; }
+#screen-quest-intro .instr-item{ font-size: 20px !important; padding: 16px 18px !important; }
+
+/* Back buttons: small pill, less prominent */
+.btn-row .btn-secondary[id*="back"],
+.btn-row .btn-secondary[id*="Back"]{
+  min-height: 44px !important; font-size: 16px !important; opacity: 0.7;
+  border-radius: 999px !important; padding: 10px 20px !important;
+  width: auto !important; align-self: center;
+}
+
+/* Consent agree button */
+#btn-consent-next{ min-height: 64px !important; font-size: 20px !important; }
+
+/* Saving/debrief/end */
+#screen-saving .btn, #screen-debrief .btn, #screen-end .btn{ font-size: 22px !important; min-height: 60px !important; }
+
 </style>
 </head>
 <body>
