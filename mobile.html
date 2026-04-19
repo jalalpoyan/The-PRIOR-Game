@@ -1483,32 +1483,32 @@ body.mobile-build::before{content:none}
 }
 .touch-controls.visible{display:flex}
 .touch-panel{
-  width:min(430px,94vw);display:none;flex-direction:column;align-items:center;justify-content:center;
+  width:min(100vw,98vw);display:none;flex-direction:column;align-items:center;justify-content:center;
   gap:0;pointer-events:auto;background:transparent;border:none;box-shadow:none;padding:0
 }
 .touch-panel.visible{display:flex}
 .touch-panel-hint{display:none}
 .touch-main-buttons,.touch-quest-buttons{
-  width:min(100vw,620px);
-  display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:nowrap;
-  padding:0 clamp(8px,3.4vw,18px)
+  width:min(100vw,760px);
+  display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:nowrap;
+  padding:0 clamp(6px,2.2vw,16px)
 }
 .touch-main-buttons,
 .touch-quest-buttons{
   justify-content:space-between;
 }
 .touch-btn{
-  width:clamp(158px,44vw,208px);height:clamp(158px,44vw,208px);min-height:158px;min-width:158px;
+  width:clamp(170px,46vw,220px);height:clamp(170px,46vw,220px);min-height:170px;min-width:170px;
   padding:14px;border-radius:999px;border:1px solid rgba(255,255,255,0.20);
   background:rgba(255,255,255,0.10);color:#eef7fa;font-family:'Rajdhani',sans-serif;
-  font-weight:700;font-size:clamp(23px,5.8vw,27px);letter-spacing:1.05px;text-transform:uppercase;
+  font-weight:700;font-size:clamp(24px,6vw,29px);letter-spacing:1.05px;text-transform:uppercase;
   text-align:center;line-height:1.05;white-space:normal;user-select:none;-webkit-user-select:none;
   touch-action:manipulation;box-shadow:0 12px 24px rgba(0,0,0,0.24)
 }
 .touch-main-buttons .touch-btn,
 .touch-quest-buttons .touch-btn{
-  width:clamp(158px,44vw,208px);height:clamp(158px,44vw,208px);min-width:158px;min-height:158px;
-  padding:14px;font-size:clamp(23px,5.8vw,27px);letter-spacing:1.05px;
+  width:clamp(170px,46vw,220px);height:clamp(170px,46vw,220px);min-width:170px;min-height:170px;
+  padding:14px;font-size:clamp(24px,6vw,29px);letter-spacing:1.05px;
   background:rgba(255,255,255,0.10);border-color:rgba(255,255,255,0.20);
 }
 .touch-main-buttons .touch-btn.low,
@@ -1520,18 +1520,18 @@ body.mobile-build::before{content:none}
 }
 .touch-btn.active,.touch-btn:active{transform:translateY(1px) scale(0.985);background:rgba(0,212,255,0.18);border-color:rgba(0,212,255,0.5)}
 @media (orientation: portrait){
-  .touch-controls{padding:0 0 calc(env(safe-area-inset-bottom,0px) + 22px)}
-  .touch-main-buttons,.touch-quest-buttons{width:100vw;padding:0 clamp(4px,2.2vw,12px);gap:6px}
+  .touch-controls{padding:0 0 calc(env(safe-area-inset-bottom,0px) + 18px)}
+  .touch-main-buttons,.touch-quest-buttons{width:100vw;padding:0 clamp(2px,1.2vw,10px);gap:4px}
   .touch-btn,.touch-main-buttons .touch-btn,.touch-quest-buttons .touch-btn{
-    width:clamp(150px,45.3vw,198px);height:clamp(150px,45.3vw,198px);min-width:150px;min-height:150px;
-    font-size:clamp(23px,6vw,28px);
+    width:clamp(176px,47.5vw,228px);height:clamp(176px,47.5vw,228px);min-width:176px;min-height:176px;
+    font-size:clamp(25px,6.3vw,30px);
   }
 }
 @media (max-width: 390px){
-  .touch-main-buttons,.touch-quest-buttons{padding:0 clamp(2px,1.4vw,8px);gap:4px}
+  .touch-main-buttons,.touch-quest-buttons{padding:0 2px;gap:3px}
   .touch-btn,.touch-main-buttons .touch-btn,.touch-quest-buttons .touch-btn{
-    width:clamp(144px,44.5vw,174px);height:clamp(144px,44.5vw,174px);min-width:144px;min-height:144px;
-    font-size:clamp(21px,5.6vw,25px);
+    width:clamp(162px,47vw,188px);height:clamp(162px,47vw,188px);min-width:162px;min-height:162px;
+    font-size:clamp(22px,5.9vw,26px);
   }
 }
 
@@ -2352,7 +2352,9 @@ const devSkipBtn = document.getElementById('dev-skip-btn');
 
 function updateDevSkipButton() {
   if (!devSkipBtn) return;
-  const shouldShow = !!ALLOW_TEST_SHORTCUTS;
+  const onOverlayScreen = !!currentScreenName;
+  const liveCanvasPhase = !onOverlayScreen || ['training','test'].includes(appState) || !!questRunning;
+  const shouldShow = !!ALLOW_TEST_SHORTCUTS && onOverlayScreen && !liveCanvasPhase;
   devSkipBtn.classList.toggle('hidden', !shouldShow);
 }
 
@@ -2421,7 +2423,7 @@ function handleDevSkipClick() {
       showScreen('questIntro');
       return;
     case 'questIntro':
-      skipQuestForTesting(true);
+      skipQuestForTesting(false);
       return;
     case 'caps':
       markQuestionnairesSkipped();
@@ -5785,6 +5787,13 @@ primeEmbeddedAudioLoad();
   const activeQuestCollectors = new Set();
   const touchEls = {};
 
+  function clearQuestTouchCollectors(){
+    Array.from(activeQuestCollectors).forEach(api => {
+      try { api.dispose(); } catch(e) {}
+    });
+    activeQuestCollectors.clear();
+  }
+
   function setHtml(selector, html){ const el=document.querySelector(selector); if(el) el.innerHTML = html; }
 
   function refreshMobileCopy(){
@@ -5807,7 +5816,7 @@ primeEmbeddedAudioLoad();
   function updateTouchPanels(){
     const overlayHidden = ol.style.display === 'none';
     const showMain = overlayHidden && ['training','test'].includes(appState) && ['playing','post_resp','confidence'].includes(tsState);
-    const showQuest = overlayHidden && !!questRunning && !!questTouchActive;
+    const showQuest = overlayHidden && !['training','test'].includes(appState) && !!questRunning && !!questTouchActive;
     if (!touchEls.root) return;
     touchEls.root.classList.toggle('visible', showMain || showQuest);
     touchEls.root.setAttribute('aria-hidden', showMain || showQuest ? 'false' : 'true');
@@ -5926,11 +5935,33 @@ primeEmbeddedAudioLoad();
   };
 
   const originalShowScreen = showScreen;
-  showScreen = function(name){ const out = originalShowScreen.apply(this, arguments); if (name) questTouchActive = false; updateTouchPanels(); return out; };
+  showScreen = function(name){
+    const out = originalShowScreen.apply(this, arguments);
+    if (name) {
+      questTouchActive = false;
+      clearQuestTouchCollectors();
+    }
+    updateTouchPanels();
+    return out;
+  };
   const originalStartNextTrial = startNextTrial;
-  startNextTrial = function(){ activeTouchKey = null; const out = originalStartNextTrial.apply(this, arguments); updateTouchPanels(); return out; };
+  startNextTrial = function(){
+    activeTouchKey = null;
+    questTouchActive = false;
+    clearQuestTouchCollectors();
+    const out = originalStartNextTrial.apply(this, arguments);
+    updateTouchPanels();
+    return out;
+  };
   const originalFinalizeTrial = finalizeTrial;
-  finalizeTrial = function(){ activeTouchKey = null; const out = originalFinalizeTrial.apply(this, arguments); updateTouchPanels(); return out; };
+  finalizeTrial = function(){
+    activeTouchKey = null;
+    questTouchActive = false;
+    clearQuestTouchCollectors();
+    const out = originalFinalizeTrial.apply(this, arguments);
+    updateTouchPanels();
+    return out;
+  };
   wrapQuestState('drawQuestFixation', false);
   wrapQuestState('drawQuestListening', true);
   wrapQuestState('drawQuestQuestion', true);
