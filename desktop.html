@@ -5128,7 +5128,7 @@ function dataURLToBlob(dataUrl){
 
 function buildMainCSV(){
   const cols=[
-    'ParticipantID','KeyMapping','Phase','TrialNum','Mission','DetectionLevel',
+    'ParticipantID','BuildType','CounterbalanceVersion','KeyMapping','Phase','TrialNum','Mission','DetectionLevel',
     'IsSignal','TargetClass','CarrierHz','SNR_dB','SNR_Level',
     'MarkerOnsetSec','ToneOnsetSec','IsEarlyTone',
     'NoiseFile','NoiseStartSec',
@@ -5141,7 +5141,7 @@ function buildMainCSV(){
   allTrials.forEach((td,i)=>{
     const prev=i>0?allTrials[i-1]:null;
     rows.push([
-      csvVal(PID), csvVal(keyMapVal), csvVal(td.phase), csvVal(td.trialNum),
+      csvVal(PID), csvVal(BUILD_TYPE), csvVal(COUNTERBALANCE_VERSION), csvVal(keyMapVal), csvVal(td.phase), csvVal(td.trialNum),
       csvVal(td.mission), csvVal(td.detLevel),
       csvVal(td.isSignal?1:0), csvVal(td.targetClass),
       csvVal(td.carrierHz), csvVal(td.snrDB), csvVal(td.snrLevel),
