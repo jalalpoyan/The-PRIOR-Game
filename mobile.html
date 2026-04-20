@@ -1495,8 +1495,10 @@ body.mobile-build::before{content:none}
 .touch-panel-hint{display:none}
 .touch-main-buttons,.touch-quest-buttons{
   width:100%;height:100%;
-  display:flex;flex-direction:row;align-items:center;justify-content:space-around;
-  pointer-events:none;padding:0;
+  display:flex;flex-direction:row;align-items:flex-end;justify-content:space-evenly;
+  pointer-events:none;
+  padding:0 max(14px, env(safe-area-inset-right,0px)) calc(env(safe-area-inset-bottom,0px) + 18px) max(14px, env(safe-area-inset-left,0px));
+  box-sizing:border-box;
 }
 /* Response circles — one centred in each screen half */
 .touch-btn{
