@@ -3771,6 +3771,24 @@ function getAudioVisualLatencyCompSec() {
   return Math.min(0.1, Math.max(outputLatency, baseLatency, 0));
 }
 
+function getSessionContextForExport() {
+  const tzOffsetMin = new Date().getTimezoneOffset();
+  return {
+    userAgent: navigator.userAgent || '',
+    platform: navigator.platform || '',
+    language: navigator.language || '',
+    timezoneOffsetMin: Number.isFinite(tzOffsetMin) ? tzOffsetMin : '',
+    screenWidth: screen && Number.isFinite(screen.width) ? screen.width : '',
+    screenHeight: screen && Number.isFinite(screen.height) ? screen.height : '',
+    viewportWidth: window && Number.isFinite(window.innerWidth) ? window.innerWidth : '',
+    viewportHeight: window && Number.isFinite(window.innerHeight) ? window.innerHeight : '',
+    devicePixelRatio: window && Number.isFinite(window.devicePixelRatio) ? window.devicePixelRatio : '',
+    audioBaseLatencySec: audioCtx && Number.isFinite(audioCtx.baseLatency) ? audioCtx.baseLatency : '',
+    audioOutputLatencySec: audioCtx && Number.isFinite(audioCtx.outputLatency) ? audioCtx.outputLatency : ''
+  };
+}
+
+
 
 // ═══════════════════════════════════════════════════════════════════
 // QUEST THRESHOLDING
@@ -4832,6 +4850,10 @@ function launchTrial(){
     responded:false, respClass:null, responseKey:null,
     rt:NaN, rtFromStart:NaN, earlyResponse:false,
     noResponse:true, confidence:NaN, confidenceRT:NaN,
+    trialLaunchedAt:new Date().toISOString(),
+    responseRecordedAt:'',
+    confidenceRatedAt:'',
+    trialFinalizedAt:'',
     correct:null, points:0
   });
   respondedFlag=false; keyHoldStart=null; pressedKey=null;
@@ -4886,6 +4908,7 @@ function goConfidence(){
     const el=(performance.now()-keyHoldStart)/1000;
     TD.confidence=1+Math.min(el/CFG.confMaxSec,1)*4;
     TD.confidenceRT=el;
+    TD.confidenceRatedAt = TD.confidenceRatedAt || new Date().toISOString();
     finalizeTrial(); return;
   }
   tsState='confidence';
@@ -4896,10 +4919,12 @@ function onKeyRelease(){
   const el=(performance.now()-keyHoldStart)/1000;
   TD.confidence=1+Math.min(el/CFG.confMaxSec,1)*4;
   TD.confidenceRT=el;
+  TD.confidenceRatedAt = TD.confidenceRatedAt || new Date().toISOString();
   finalizeTrial();
 }
 
 function finalizeTrial(){
+  TD.trialFinalizedAt = TD.trialFinalizedAt || new Date().toISOString();
   // Scoring
   if(!TD.responded){
     TD.respClass='WITHHOLD'; TD.responseKey=''; TD.rt=NaN;
@@ -4971,6 +4996,7 @@ document.addEventListener('keydown', e => {
       TD.responded=true; TD.noResponse=false;
       TD.respClass=(k===KEY_COMMON)?'COMMON':'RARE';
       TD.responseKey=k;
+      TD.responseRecordedAt = TD.responseRecordedAt || new Date().toISOString();
 
       const el=audioCtx.currentTime-audioSchedT;
       TD.rtFromStart=el;
@@ -5647,6 +5673,10 @@ function buildQuestionnaireSummaryCSV(){
 function buildSessionSummaryCSV(){
   const cols = [
     'ParticipantID','ExportedAt','AppVersion','BuildType','CounterbalanceVersion','CommonHz','KeyMapping','KeyCommon','KeyRare','AudioSampleRate',
+    'ParticipantSex','ParticipantAge',
+    'UserAgent','Platform','Language','TimezoneOffsetMin',
+    'ScreenWidth','ScreenHeight','ViewportWidth','ViewportHeight','DevicePixelRatio',
+    'AudioBaseLatencySec','AudioOutputLatencySec',
     'PIS_ViewedAt','PIS_CompletedAt','Consent_ViewedAt','Consent_CompletedAt','ConsentDate','ConsentGiven',
     'AWSBasic_StartedAt','AWSBasic_CompletedAt','AWSBasic_DidPass','AWSBasic_SkippedForTesting','AWSBasic_TotalCorrect','AWSBasic_TotalTrials',
     'Threshold_ML','Threshold_75','Threshold_50','Threshold_25','QUEST_FitValid','Gamma_Fixed','FA_Rate_Observed',
@@ -5664,9 +5694,14 @@ function buildSessionSummaryCSV(){
     gamma_fixed: questResults.gamma_fixed,
     faRate_observed: questResults.faRate_observed
   } : {};
+  const ctx = getSessionContextForExport();
   const row = [
     csvVal(PID), csvVal(new Date().toISOString()), csvVal(APP_VERSION), csvVal(BUILD_TYPE), csvVal(COUNTERBALANCE_VERSION), csvVal(CFG.commonHz), csvVal(keyMapVal || ''), csvVal(KEY_COMMON), csvVal(KEY_RARE), csvVal(audioCtx ? audioCtx.sampleRate : ''),
-    csvVal(pisData ? pisData.viewedAt : ''), csvVal(pisData ? pisData.completedAt : ''), csvVal(consentData ? consentData.viewedAt : ''), csvVal(consentData ? consentData.completedAt : ''), csvVal(consentData ? consentData.consentDate : ''), csvVal(consentData ? consentData.consentGiven : ''),
+    csvVal(participantSex || ''), csvVal(participantAge || ''),
+    csvVal(ctx.userAgent), csvVal(ctx.platform), csvVal(ctx.language), csvVal(ctx.timezoneOffsetMin),
+    csvVal(ctx.screenWidth), csvVal(ctx.screenHeight), csvVal(ctx.viewportWidth), csvVal(ctx.viewportHeight), csvVal(ctx.devicePixelRatio),
+    csvVal(ctx.audioBaseLatencySec), csvVal(ctx.audioOutputLatencySec),
+    csvVal(pisData ? pisData.viewedAt : ''), csvVal(pisData ? pisData.completedAt : ''), csvVal(consentData ? consentData.viewedAt : ''), csvVal(consentData ? consentData.completedAt : ''), csvVal(consentData ? consentData.date : ''), csvVal(consentData ? consentData.consentGiven : ''),
     csvVal(awsBasicResult ? awsBasicResult.startedAt : ''), csvVal(awsBasicResult ? awsBasicResult.completedAt : ''), csvVal(awsBasicResult ? awsBasicResult.didPass : ''), csvVal(awsBasicResult ? awsBasicResult.skippedForTesting : ''), csvVal(awsBasicResult ? awsBasicResult.totalCorrect : ''), csvVal(awsBasicResult ? awsBasicResult.totalTrials : ''),
     csvVal(thresholds.threshold_ML ?? ''), csvVal(thresholds.threshold_75 ?? snrHigh ?? ''), csvVal(thresholds.threshold_50 ?? snrMedium ?? ''), csvVal(thresholds.threshold_25 ?? snrLow ?? ''), csvVal(thresholds.fit_valid ?? ''), csvVal(thresholds.gamma_fixed ?? ''), csvVal(thresholds.faRate_observed ?? ''),
     csvVal(capsData ? capsData.completedAt : ''), csvVal(capsData ? capsData.skippedForTesting : ''), csvVal(capsYesCount()),
@@ -5701,6 +5736,7 @@ function buildSessionManifest(){
       keyRare: KEY_RARE,
       audioSampleRate: audioCtx ? audioCtx.sampleRate : null
     },
+    sessionContext: getSessionContextForExport(),
     documents: {
       participantInformation: JSON.parse(JSON.stringify(pisData)),
       consent: JSON.parse(JSON.stringify(consentData)),
@@ -5765,7 +5801,7 @@ function buildReadmeTXT(baseName){
     'FILES INCLUDED',
     '--------------',
     'README.txt                          This file',
-    'session_summary.csv                 One-row summary with thresholds, score, and counts',
+    'session_summary.csv                 One-row summary with build, demographics, device/audio context, thresholds, score, and counts',
     'session_manifest_full.json          Full raw export with all metadata, figures, and trial logs',
     'documents/consent_summary.csv       One-row consent and document timing summary',
     'documents/consent_full.json         Full consent record',
@@ -5780,7 +5816,7 @@ function buildReadmeTXT(baseName){
     'questionnaires/questionnaire_summary.csv  One-row questionnaire summary',
     'questionnaires/caps_responses.csv   Trial-by-trial CAPS responses',
     'questionnaires/caps_full.json       Full CAPS response object',
-    'main/main_trials.csv                Trial-by-trial main experiment data',
+    'main/main_trials.csv                Trial-by-trial main experiment data with per-trial timestamps',
     'main/main_trials_full.json          Full main trial array plus config and scores',
     'main/main_figure.png                Main experiment summary figure',
     '',
