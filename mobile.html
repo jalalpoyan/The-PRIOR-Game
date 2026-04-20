@@ -1522,32 +1522,6 @@ body.mobile-build::before{content:none}
 body.mobile-build #screen-quest-intro{padding-top:calc(env(safe-area-inset-top,0px) + 14px)}
 body.mobile-build #screen-quest-intro .logo{display:block !important;visibility:visible !important;margin-bottom:8px}
 
-/* Force mobile main response circles to the very bottom quarter points */
-#touch-main-panel{position:absolute;inset:0;}
-#touch-main-panel .touch-main-buttons{
-  position:absolute !important;
-  left:0; right:0;
-  bottom:calc(env(safe-area-inset-bottom,0px) + 8px) !important;
-  width:100%;
-  height:clamp(140px,38vw,220px) !important;
-  display:block !important;
-  padding:0 !important;
-  pointer-events:none;
-}
-#touch-main-panel #touch-btn-common,
-#touch-main-panel #touch-btn-rare{
-  position:absolute !important;
-  bottom:0 !important;
-  margin:0 !important;
-  transform:translateX(-50%);
-  pointer-events:auto;
-}
-#touch-main-panel #touch-btn-common{left:25vw !important;}
-#touch-main-panel #touch-btn-rare{left:75vw !important;}
-#touch-main-panel .touch-btn.active,
-#touch-main-panel .touch-btn:active{transform:translateX(-50%) scale(0.97) !important;}
-
-
 
 #dev-skip-btn{
   position:fixed;
@@ -1683,12 +1657,14 @@ button.btn-primary{ width: 100%; }
 #screen-saving .btn, #screen-debrief .btn, #screen-end .btn{ font-size: 22px !important; min-height: 60px !important; }
 
 
-/* Final mobile sample-button override: circular Q/E with frequency label underneath */
+
+/* Final override: intro sample buttons as Q/E circles with frequency labels underneath */
 #screen-intro .intro-sample-buttons{
   display:grid !important;
   grid-template-columns:repeat(2,minmax(0,1fr)) !important;
   gap:18px !important;
   align-items:start !important;
+  justify-items:center !important;
 }
 #screen-intro #btn-demo-common,
 #screen-intro #btn-demo-rare{
@@ -2040,7 +2016,7 @@ button.btn-primary{ width: 100%; }
       <div class="instr-item">
         <div class="instr-icon">📱</div>
         <div>
-          Press <strong><span class="key-badge" id="intro-common-key">Q</span></strong> for the <strong>low frequency beep</strong> and <strong><span class="key-badge" id="intro-rare-key">E</span></strong> for the <strong>high frequency beep</strong>.<br>
+          Tap <strong>LOW BEEP</strong> for the <strong>low frequency beep</strong> and <strong>HIGH BEEP</strong> for the <strong>high frequency beep</strong>.<br>
           If you do not hear a beep, <strong>do not press anything</strong>.
         </div>
       </div>
@@ -2057,8 +2033,8 @@ button.btn-primary{ width: 100%; }
         <div class="intro-sample-wrap">
           <div class="intro-sample-hint">Play the sample tones below until you have a good feel for the sounds.</div>
           <div class="intro-sample-buttons">
-            <button class="btn btn-secondary" id="btn-demo-common" type="button">LOW FREQUENCY TONE</button>
-            <button class="btn btn-secondary" id="btn-demo-rare" type="button">HIGH FREQUENCY TONE</button>
+            <button class="btn btn-secondary" id="btn-demo-common" type="button"><span class="sample-circle-key">Q</span><span class="sample-circle-label">Low frequency</span></button>
+            <button class="btn btn-secondary" id="btn-demo-rare" type="button"><span class="sample-circle-key">E</span><span class="sample-circle-label">High frequency</span></button>
           </div>
         </div>
       </div>
@@ -2485,6 +2461,8 @@ function refreshIntroKeyLabels(){
 
   const commonToneName = COUNTERBALANCE_VERSION === 2 ? 'high frequency beep' : 'low frequency beep';
   const rareToneName = COUNTERBALANCE_VERSION === 2 ? 'low frequency beep' : 'high frequency beep';
+  const commonButtonName = COUNTERBALANCE_VERSION === 2 ? 'HIGH<br>BEEP' : 'LOW<br>BEEP';
+  const rareButtonName = COUNTERBALANCE_VERSION === 2 ? 'LOW<br>BEEP' : 'HIGH<br>BEEP';
   const commonDemoName = COUNTERBALANCE_VERSION === 2 ? 'HIGH FREQUENCY TONE' : 'LOW FREQUENCY TONE';
   const rareDemoName = COUNTERBALANCE_VERSION === 2 ? 'LOW FREQUENCY TONE' : 'HIGH FREQUENCY TONE';
 
@@ -2498,15 +2476,13 @@ function refreshIntroKeyLabels(){
 
   const demoCommon = document.getElementById('btn-demo-common');
   const demoRare = document.getElementById('btn-demo-rare');
-  if (demoCommon) demoCommon.innerHTML = `<span class="sample-circle-key">${kc}</span><span class="sample-circle-label">${commonDemoName}</span>`;
-  if (demoRare) demoRare.innerHTML = `<span class="sample-circle-key">${kr}</span><span class="sample-circle-label">${rareDemoName}</span>`;
-  if (demoCommon) demoCommon.setAttribute('aria-label', `${kc}: ${commonDemoName}`);
-  if (demoRare) demoRare.setAttribute('aria-label', `${kr}: ${rareDemoName}`);
+  if (demoCommon) demoCommon.innerHTML = `<span class="sample-circle-key">${kc}</span><span class="sample-circle-label">${COUNTERBALANCE_VERSION === 2 ? 'High frequency' : 'Low frequency'}</span>`;
+  if (demoRare) demoRare.innerHTML = `<span class="sample-circle-key">${kr}</span><span class="sample-circle-label">${COUNTERBALANCE_VERSION === 2 ? 'Low frequency' : 'High frequency'}</span>`;
 
   const touchCommon = document.getElementById('touch-btn-common');
   const touchRare = document.getElementById('touch-btn-rare');
-  if (touchCommon) touchCommon.textContent = kc;
-  if (touchRare) touchRare.textContent = kr;
+  if (touchCommon) touchCommon.innerHTML = commonButtonName;
+  if (touchRare) touchRare.innerHTML = rareButtonName;
 }
 
 function isSkipKey(event) {
@@ -6127,8 +6103,8 @@ primeEmbeddedAudioLoad();
   <div id="touch-main-panel" class="touch-panel">
     <div id="touch-main-hint" class="touch-panel-hint"></div>
     <div class="touch-main-buttons">
-      <button type="button" class="touch-btn low" id="touch-btn-common">Q</button>
-      <button type="button" class="touch-btn high" id="touch-btn-rare">E</button>
+      <button type="button" class="touch-btn low" id="touch-btn-common">LOW<br>BEEP</button>
+      <button type="button" class="touch-btn high" id="touch-btn-rare">HIGH<br>BEEP</button>
     </div>
   </div>
   <div id="touch-quest-panel" class="touch-panel">
