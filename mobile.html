@@ -2152,6 +2152,7 @@ const CFG = {
 };
 
 const APP_VERSION = 'prior-quest-web-v4-embedded-audio';
+const BUILD_TYPE = 'mobile';
 
 // ── COUNTERBALANCING: frequency assignment ───────────────────────────────────
 // index.html passes ?v=1 or ?v=2 to alternate which frequency is common/rare
@@ -5258,6 +5259,7 @@ function buildRemoteSummaryRow(){
   return {
     uploaded_at: new Date().toISOString(),
     app_version: APP_VERSION,
+    build_type: BUILD_TYPE,
     counterbalance_version: COUNTERBALANCE_VERSION,
     common_hz: CFG.commonHz,
     session_run_id: sessionRunId,
@@ -5644,7 +5646,7 @@ function buildQuestionnaireSummaryCSV(){
 
 function buildSessionSummaryCSV(){
   const cols = [
-    'ParticipantID','ExportedAt','AppVersion','CounterbalanceVersion','CommonHz','KeyMapping','KeyCommon','KeyRare','AudioSampleRate',
+    'ParticipantID','ExportedAt','AppVersion','BuildType','CounterbalanceVersion','CommonHz','KeyMapping','KeyCommon','KeyRare','AudioSampleRate',
     'PIS_ViewedAt','PIS_CompletedAt','Consent_ViewedAt','Consent_CompletedAt','ConsentDate','ConsentGiven',
     'AWSBasic_StartedAt','AWSBasic_CompletedAt','AWSBasic_DidPass','AWSBasic_SkippedForTesting','AWSBasic_TotalCorrect','AWSBasic_TotalTrials',
     'Threshold_ML','Threshold_75','Threshold_50','Threshold_25','QUEST_FitValid','Gamma_Fixed','FA_Rate_Observed',
@@ -5663,7 +5665,7 @@ function buildSessionSummaryCSV(){
     faRate_observed: questResults.faRate_observed
   } : {};
   const row = [
-    csvVal(PID), csvVal(new Date().toISOString()), csvVal(APP_VERSION), csvVal(COUNTERBALANCE_VERSION), csvVal(CFG.commonHz), csvVal(keyMapVal || ''), csvVal(KEY_COMMON), csvVal(KEY_RARE), csvVal(audioCtx ? audioCtx.sampleRate : ''),
+    csvVal(PID), csvVal(new Date().toISOString()), csvVal(APP_VERSION), csvVal(BUILD_TYPE), csvVal(COUNTERBALANCE_VERSION), csvVal(CFG.commonHz), csvVal(keyMapVal || ''), csvVal(KEY_COMMON), csvVal(KEY_RARE), csvVal(audioCtx ? audioCtx.sampleRate : ''),
     csvVal(pisData ? pisData.viewedAt : ''), csvVal(pisData ? pisData.completedAt : ''), csvVal(consentData ? consentData.viewedAt : ''), csvVal(consentData ? consentData.completedAt : ''), csvVal(consentData ? consentData.consentDate : ''), csvVal(consentData ? consentData.consentGiven : ''),
     csvVal(awsBasicResult ? awsBasicResult.startedAt : ''), csvVal(awsBasicResult ? awsBasicResult.completedAt : ''), csvVal(awsBasicResult ? awsBasicResult.didPass : ''), csvVal(awsBasicResult ? awsBasicResult.skippedForTesting : ''), csvVal(awsBasicResult ? awsBasicResult.totalCorrect : ''), csvVal(awsBasicResult ? awsBasicResult.totalTrials : ''),
     csvVal(thresholds.threshold_ML ?? ''), csvVal(thresholds.threshold_75 ?? snrHigh ?? ''), csvVal(thresholds.threshold_50 ?? snrMedium ?? ''), csvVal(thresholds.threshold_25 ?? snrLow ?? ''), csvVal(thresholds.fit_valid ?? ''), csvVal(thresholds.gamma_fixed ?? ''), csvVal(thresholds.faRate_observed ?? ''),
@@ -5683,6 +5685,7 @@ function buildSessionManifest(){
   return {
     app: 'The PRIOR Game',
     version: APP_VERSION,
+    buildType: BUILD_TYPE,
     counterbalance: {
       version: COUNTERBALANCE_VERSION,
       commonHz: CFG.commonHz,
@@ -5754,6 +5757,9 @@ function buildReadmeTXT(baseName){
     `Participant ID: ${PID}`,
     `Exported at: ${new Date().toISOString()}`,
     `App version: ${APP_VERSION}`,
+    `Build type: ${BUILD_TYPE}`,
+    `Counterbalance version: ${COUNTERBALANCE_VERSION}`,
+    `Common tone frequency (Hz): ${CFG.commonHz}`,
     `Base package name: ${baseName}`,
     '',
     'FILES INCLUDED',
