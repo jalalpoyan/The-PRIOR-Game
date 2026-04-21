@@ -10,13 +10,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap');
 
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-html,body{width:100%;height:100%;overflow:hidden;background:#808080;font-family:'Rajdhani',sans-serif;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
+html,body{width:100%;height:100%;margin:0;padding:0;overflow:hidden;position:fixed;inset:0;background:#000;font-family:'Rajdhani',sans-serif;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
+:root{--vv-left:0px;--vv-top:0px;--vv-width:100vw;--vv-height:100vh}
 
-#game-canvas{display:block;position:fixed;top:0;left:0;width:100%;height:100%;z-index:1}
+#game-canvas{display:block;position:fixed;top:var(--vv-top);left:var(--vv-left);width:var(--vv-width);height:var(--vv-height);z-index:1}
 
 /* ── OVERLAY ── */
 #overlay{
-  position:fixed;top:0;left:0;width:100%;height:100%;
+  position:fixed;top:var(--vv-top);left:var(--vv-left);width:var(--vv-width);height:var(--vv-height);
   display:flex;align-items:center;justify-content:center;
   z-index:10;overflow-y:auto;box-sizing:border-box;
   padding:108px 16px 18px;
@@ -1480,12 +1481,12 @@ body.mobile-build::before{content:none}
 /* ── TOUCH CONTROLS: corner placement ── */
 /* ── Touch response buttons: each centred in its half of the screen ── */
 .touch-controls{
-  position:fixed;inset:0;z-index:14;display:none;
+  position:fixed;top:var(--vv-top);left:var(--vv-left);width:var(--vv-width);height:var(--vv-height);z-index:14;display:none;
   pointer-events:none;touch-action:none;
 }
 .touch-controls.visible{display:block}
 .touch-panel{
-  position:absolute;inset:0;
+  position:absolute;top:0;left:0;width:100%;height:100%;
   display:none;flex-direction:row;
   pointer-events:none;
   padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px);
@@ -2741,18 +2742,34 @@ let W, H, CX, CY;
 
 function onResize() {
   const dpr = Math.max(1, Math.min(window.devicePixelRatio || 1, 2));
-  W = window.innerWidth;
-  H = window.innerHeight;
-  cvs.style.width = W + 'px';
-  cvs.style.height = H + 'px';
-  cvs.width = Math.round(W * dpr);
-  cvs.height = Math.round(H * dpr);
+  const vv = window.visualViewport;
+  const vvW = vv ? vv.width : window.innerWidth;
+  const vvH = vv ? vv.height : window.innerHeight;
+  const vvL = vv ? vv.offsetLeft : 0;
+  const vvT = vv ? vv.offsetTop : 0;
+  document.documentElement.style.setProperty('--vv-left', vvL + 'px');
+  document.documentElement.style.setProperty('--vv-top', vvT + 'px');
+  document.documentElement.style.setProperty('--vv-width', vvW + 'px');
+  document.documentElement.style.setProperty('--vv-height', vvH + 'px');
+  W = vvW;
+  H = vvH;
+  cvs.style.left = vvL + 'px';
+  cvs.style.top = vvT + 'px';
+  cvs.style.width = vvW + 'px';
+  cvs.style.height = vvH + 'px';
+  cvs.width = Math.round(vvW * dpr);
+  cvs.height = Math.round(vvH * dpr);
   gc.setTransform(dpr, 0, 0, dpr, 0, 0);
   gc.imageSmoothingEnabled = true;
   gc.imageSmoothingQuality = 'high';
   CX = W/2; CY = H/2;
 }
 window.addEventListener('resize', onResize);
+window.addEventListener('orientationchange', ()=>setTimeout(onResize, 80));
+if (window.visualViewport) {
+  window.visualViewport.addEventListener('resize', onResize);
+  window.visualViewport.addEventListener('scroll', onResize);
+}
 onResize();
 
 // ═══════════════════════════════════════════════════════════════════
