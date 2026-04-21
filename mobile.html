@@ -2017,7 +2017,7 @@ button.btn-primary{ width: 100%; }
       <div class="instr-item">
         <div class="instr-icon">📱</div>
         <div>
-          Tap <strong>LOW BEEP</strong> for the <strong>low frequency beep</strong> and <strong>HIGH BEEP</strong> for the <strong>high frequency beep</strong>.<br>
+          Tap <strong>Q</strong> for the <strong>low frequency beep</strong> and <strong>E</strong> for the <strong>high frequency beep</strong>.<br>
           If you do not hear a beep, <strong>do not press anything</strong>.
         </div>
       </div>
@@ -3868,6 +3868,23 @@ function handleTaskVisibilityInterrupt() {
   }
 }
 
+async function unlockAudioAfterReturn() {
+  await initAudio();
+  if (audioCtx && audioCtx.state !== 'running') {
+    try { await audioCtx.resume(); } catch (e) {}
+  }
+  if (audioCtx) {
+    try {
+      const silentBuf = audioCtx.createBuffer(1, 1, audioCtx.sampleRate || 44100);
+      const silentSrc = audioCtx.createBufferSource();
+      silentSrc.buffer = silentBuf;
+      silentSrc.connect(audioCtx.destination);
+      silentSrc.start();
+    } catch (e) {}
+  }
+  await new Promise(resolve => setTimeout(resolve, 60));
+}
+
 function handleReturnFromVisibilityInterrupt() {
   if (!pendingVisibilityTrialRestart) return;
   pendingVisibilityTrialRestart = false;
@@ -3875,7 +3892,11 @@ function handleReturnFromVisibilityInterrupt() {
     'Please stay on this page',
     'You left the page during a trial, so this trial will restart.',
     'Restart trial →',
-    async () => { await initAudio(); launchTrial(); }
+    async () => {
+      await unlockAudioAfterReturn();
+      stopAudio();
+      launchTrial();
+    }
   );
 }
 
@@ -6156,8 +6177,8 @@ primeEmbeddedAudioLoad();
   <div id="touch-main-panel" class="touch-panel">
     <div id="touch-main-hint" class="touch-panel-hint"></div>
     <div class="touch-main-buttons">
-      <button type="button" class="touch-btn low" id="touch-btn-common">LOW<br>BEEP</button>
-      <button type="button" class="touch-btn high" id="touch-btn-rare">HIGH<br>BEEP</button>
+      <button type="button" class="touch-btn low" id="touch-btn-common">Q</button>
+      <button type="button" class="touch-btn high" id="touch-btn-rare">E</button>
     </div>
   </div>
   <div id="touch-quest-panel" class="touch-panel">
