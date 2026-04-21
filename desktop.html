@@ -3289,12 +3289,16 @@ document.getElementById('btn-intro-start').addEventListener('click', () => {
 // ═══════════════════════════════════════════════════════════════════
 // AUDIO ENGINE
 // ═══════════════════════════════════════════════════════════════════
-function initAudio(opts = {}) {
-  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  if (!opts.skipResume && audioCtx.state === 'suspended') {
-    const maybePromise = audioCtx.resume();
-    if (maybePromise && typeof maybePromise.catch === 'function') maybePromise.catch(() => {});
+async function initAudio(opts = {}) {
+  if (!audioCtx || audioCtx.state === 'closed') {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   }
+  if (!opts.skipResume && audioCtx && audioCtx.state !== 'running') {
+    try {
+      await audioCtx.resume();
+    } catch (e) {}
+  }
+  return audioCtx;
 }
 
 function rmsOf(arr) {
@@ -3420,7 +3424,7 @@ function handleReturnFromVisibilityInterrupt() {
     'Please stay on this page',
     'You left the page during a trial, so this trial will restart.',
     'Restart trial →',
-    () => { initAudio(); launchTrial(); }
+    async () => { await initAudio(); launchTrial(); }
   );
 }
 
