@@ -4780,14 +4780,45 @@ function buildSignalTemplatesForSNR(nTrials, snrLevel, detLevel) {
   });
 }
 
+function buildNoSignalTemplates(nTrials) {
+  const earlyOnsetPool = CFG.allowedOnsetMs
+    .filter(ms => (ms / 1000) <= CFG.earlyThresholdSec)
+    .map(ms => ms / 1000);
+  const lateOnsetPool = CFG.allowedOnsetMs
+    .filter(ms => (ms / 1000) > CFG.earlyThresholdSec && (ms / 1000) <= CFG.noiseDurSec - CFG.toneDurSec)
+    .map(ms => ms / 1000);
+  const earlyLatePool = balancedPool(['EARLY','LATE'], nTrials);
+  const earlyOnsets = balancedPool(earlyOnsetPool, earlyLatePool.filter(x => x === 'EARLY').length);
+  const lateOnsets  = balancedPool(lateOnsetPool,  earlyLatePool.filter(x => x === 'LATE').length);
+  let eIdx = 0, lIdx = 0;
+  return earlyLatePool.map(label => {
+    const isEarly = label === 'EARLY';
+    const onsetSec = isEarly ? earlyOnsets[eIdx++] : lateOnsets[lIdx++];
+    return {
+      phase: 'test',
+      isSignal: false,
+      detLevel: '0%',
+      snrLevel: 'none',
+      onsetSec,
+      markerOnsetSec: onsetSec,
+      toneOnsetSec: NaN,
+      isEarlyTone: isEarly,
+      targetClass: 'NOSIGNAL',
+      carrierHz: NaN
+    };
+  });
+}
+
 function buildBalancedTestPlan() {
   const totalMainTrials = CFG.nMissions * CFG.trialsPerMission;
   const signalByCode = {1:0,2:0,3:0};
+  let noSignalCount = 0;
   for (let m = 0; m < CFG.nMissions; m++) {
     const r = CFG.missionRatios[m];
     signalByCode[1] += r[0];
     signalByCode[2] += r[1];
     signalByCode[3] += r[2];
+    noSignalCount += r[3];
   }
 
   const pools = {
@@ -4795,6 +4826,7 @@ function buildBalancedTestPlan() {
     2: buildSignalTemplatesForSNR(signalByCode[2], 'medium', '50%'),
     3: buildSignalTemplatesForSNR(signalByCode[3], 'low', '25%')
   };
+  const noSignalPool = buildNoSignalTemplates(noSignalCount);
   const bgPool = buildBackgroundAssignment(totalMainTrials);
   let bgIdx = 0;
   const plan = [];
@@ -4821,6 +4853,7 @@ function buildBalancedTestPlan() {
       }
     });
     for (let i = 0; i < r[3]; i++) {
+      const base = noSignalPool.pop();
       missionTrials.push({
         phase: 'test',
         mission: m + 1,
@@ -4828,9 +4861,9 @@ function buildBalancedTestPlan() {
         isSignal: false,
         detLevel: '0%',
         snrLevel: 'none',
-        markerOnsetSec: NaN,
+        markerOnsetSec: base.markerOnsetSec,
         toneOnsetSec: NaN,
-        isEarlyTone: false,
+        isEarlyTone: base.isEarlyTone,
         targetClass: 'NOSIGNAL',
         carrierHz: NaN
       });
@@ -4873,7 +4906,7 @@ function makeTestTD(idx){
   }
   if(!td.isSignal){
     td.targetClass='NOSIGNAL'; td.carrierHz=NaN;
-    td.toneOnsetSec=NaN; td.isEarlyTone=false;
+    td.toneOnsetSec=NaN;
   }
   return td;
 }
