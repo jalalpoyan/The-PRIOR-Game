@@ -1529,7 +1529,7 @@ body.desktop-build::before{content:'DESKTOP VERSION';position:fixed;top:10px;rig
             <span aria-hidden="true"></span>
           </label>
           <label class="consent-box" style="left:82.74%;top:54.10%" aria-label="Consent item 7">
-            <input type="checkbox" class="consent-check" data-consent-index="7" data-statement="I understand that the questionnaire used in this study (CAPS) is a research instrument used to measure individual differences and is not a diagnostic tool.">
+            <input type="checkbox" class="consent-check" data-consent-index="7" data-statement="I understand that the questionnaire used in this study (LSHS-E) is a research instrument used to measure individual differences and is not a diagnostic tool.">
             <span aria-hidden="true"></span>
           </label>
           <label class="consent-box" style="left:82.74%;top:58.75%" aria-label="Consent item 8">
@@ -1689,16 +1689,16 @@ body.desktop-build::before{content:'DESKTOP VERSION';position:fixed;top:10px;rig
     </div>
   </div>
 
-  <!-- ═══ CAPS QUESTIONNAIRE SCREEN ═══ -->
+  <!-- ═══ LSHS-E QUESTIONNAIRE SCREEN ═══ -->
   <div id="screen-caps" class="screen questionnaire-screen">
-    <div class="logo" style="font-size:32px">CAPS QUESTIONNAIRE</div>
-    <div class="tagline" style="letter-spacing:3px;color:#99b">Sensations and perceptions</div>
+    <div class="logo" style="font-size:32px">LSHS-E QUESTIONNAIRE</div>
+    <div class="tagline" style="letter-spacing:3px;color:#99b">Experiences &amp; perceptions</div>
     <div class="divider"></div>
     <div class="questionnaire-card questionnaire-intro">
-      This section asks about sensations and perceptions you may have experienced. Answer each item <strong>YES</strong> or <strong>NO</strong>. If you answer <strong>YES</strong>, rate how <strong>distressing</strong>, <strong>distracting</strong>, and <strong>frequent</strong> the experience is. Please answer as honestly as you can. Experiences that happened <strong>under the influence of drugs</strong> should not be counted.
+      The following statements describe some experiences that you may have had in the past or face in your daily life. Please indicate how much each statement applies to you using the scale: <strong>Certainly does not apply</strong> · <strong>Possibly does not apply</strong> · <strong>Unsure</strong> · <strong>Possibly applies</strong> · <strong>Certainly applies</strong>.
     </div>
     <div class="questionnaire-card questionnaire-progress">
-      <div class="q-progress-text" id="caps-progress-text">Questions 1-4 of 32</div>
+      <div class="q-progress-text" id="caps-progress-text">Questions 1-4 of 16</div>
       <div class="q-progress-track"><div class="q-progress-fill" id="caps-progress-fill"></div></div>
     </div>
     <div class="questionnaire-card questionnaire-scroll" id="caps-questions-container"></div>
@@ -2061,76 +2061,60 @@ let questSkipRequested = false;
 let questEscapeHandler = null;
 const TEST_SKIP_THRESHOLDS = { high: 10, medium: 5, low: 0, ml: 5 };
 
-const CAPS_QUESTIONS = [
-  "Do you ever notice that sounds are much louder than they normally would be?",
-  "Do you ever sense the presence of another being, despite being unable to see any evidence?",
-  "Do you ever hear your own thoughts repeated or echoed?",
-  "Do you ever see shapes, lights or colours even though there is nothing really there?",
-  "Do you ever experience unusual burning sensations or other strange feelings in or on your body?",
-  "Do you ever hear noises or sounds when there is nothing about to explain them?",
-  "Do you ever hear your own thoughts spoken aloud in your head, so that someone near might be able to hear them?",
-  "Do you ever detect smells which don’t seem to come from your surroundings?",
-  "Do you ever have the sensation that your body, or a part of it, is changing or has changed shape?",
-  "Do you ever have the sensation that your limbs might not be your own or might not be properly connected to your body?",
-  "Do you ever hear voices commenting on what you are thinking or doing?",
-  "Do you ever feel that someone is touching you, but when you look nobody is there?",
-  "Do you ever hear voices saying words or sentences when there is no-one around that might account for it?",
-  "Do you ever experience unexplained tastes in your mouth?",
-  "Do you ever find that sensations happen all at once and flood you with information?",
-  "Do you ever find that sounds are distorted in strange or unusual ways?",
-  "Do you ever have difficulty distinguishing one sensation from another?",
-  "Do you ever smell everyday odours and think that they are unusually strong?",
-  "Do you ever find the appearance of things or people seems to change in a puzzling way, e.g. distorted shapes or sizes or colour?",
-  "Do you ever find that your skin is more sensitive to touch, heat or cold than usual?",
-  "Do you ever think that food or drink tastes much stronger than it normally would?",
-  "Do you ever look in the mirror and think that your face seems different from usual?",
-  "Do you ever have days where lights or colours seem brighter or more intense than usual?",
-  "Do you ever have the feeling of being uplifted, as if driving or rolling over a road while sitting quietly?",
-  "Do you ever find that common smells sometimes seem unusually different?",
-  "Do you ever think that everyday things look abnormal to you?",
-  "Do you ever find that your experience of time changes dramatically?",
-  "Have you ever heard two or more unexplained voices talking with each other?",
-  "Do you ever notice smells or odours that people next to you seem unaware of?",
-  "Do you ever notice that food or drink seems to have an unusual taste?",
-  "Do you ever see things that other people cannot?",
-  "Do you ever hear sounds or music that people near you don’t hear?"
+const LSHS_QUESTIONS = [
+  "Sometimes a passing thought will seem so real that it frightens me",
+  "Sometimes my thoughts seem as real as actual events in my life",
+  "No matter how hard I try to concentrate on my work unrelated thoughts always creep into my mind",
+  "In the past I have had the experience of hearing a person's voice and then found that there was no-one there",
+  "The sounds I hear in my daydreams are generally clear and distinct",
+  "The people in my daydreams seem so true to life that I sometimes think that they are",
+  "In my daydreams I can hear the sound of a tune almost as clearly as if I were actually listening to it",
+  "I often hear a voice speaking my thoughts aloud",
+  "I have been troubled by hearing voices in my head",
+  "On occasions I have seen a person's face in front of me when no-one was in fact there",
+  "Sometimes, immediately prior to falling asleep or upon awakening, I have had the experience of having seen, felt or heard something or someone that wasn't there, or I had the feeling of being touched even though no one was there",
+  "Sometimes, immediately prior to falling asleep or upon awakening, I have felt that I was floating or falling, or that I was leaving my body temporarily",
+  "On certain occasions I have felt the presence of someone close who had passed away",
+  "In the past, I have smelt a particular odour even though there was nothing there",
+  "I have had the feeling of touching something or being touched and then found that nothing or no one was there",
+  "Sometimes, I have seen objects or animals even though there was nothing there"
 ];
 const PDI_QUESTIONS = [];
-const CAPS_PER_PAGE = 4;
+const LSHS_PER_PAGE = 4;
 const PDI_PER_PAGE = 4;
 
-let capsPage = 0;
+let lshsPage = 0;
 let pdiPage = 0;
-let capsData = null;
+let lshsData = null;
 let pdiData = null;
 
-function makeBlankCapsItem(question){
-  return { question, yes_no:'', distress:'', distracting:'', frequency:'' };
+function makeBlankLshsItem(question){
+  return { question, rating: '' };
 }
-function makeBlankCapsData(skipped=false){
+function makeBlankLshsData(skipped=false){
   return {
     participantID: PID || '',
     startedAt: '',
     completedAt: '',
     skippedForTesting: skipped,
-    items: CAPS_QUESTIONS.map(makeBlankCapsItem)
+    items: LSHS_QUESTIONS.map(makeBlankLshsItem)
   };
 }
 function resetQuestionnaireData(){
-  capsPage = 0;
+  lshsPage = 0;
   pdiPage = 0;
-  capsData = makeBlankCapsData(false);
+  lshsData = makeBlankLshsData(false);
   pdiData = null;
 }
 function markQuestionnairesSkipped(){
   const now = new Date().toISOString();
-  capsPage = 0;
+  lshsPage = 0;
   pdiPage = 0;
-  capsData = makeBlankCapsData(true);
+  lshsData = makeBlankLshsData(true);
   pdiData = null;
-  capsData.participantID = PID || '';
-  capsData.startedAt = now;
-  capsData.completedAt = now;
+  lshsData.participantID = PID || '';
+  lshsData.startedAt = now;
+  lshsData.completedAt = now;
 }
 resetQuestionnaireData();
 
@@ -2258,10 +2242,10 @@ function buildSkippedQuestResults() {
 }
 
 function beginPostQuestSequence() {
-  if (!capsData || capsData.participantID !== PID) {
+  if (!lshsData || lshsData.participantID !== PID) {
     resetQuestionnaireData();
   }
-  capsData.participantID = PID || '';
+  lshsData.participantID = PID || '';
   showScreen('intro');
 }
 
@@ -2385,8 +2369,8 @@ function getOverallProgressState(name) {
   let label = 'Overall progress';
 
   if (name === 'caps') {
-    const totalPages = Math.ceil(CAPS_QUESTIONS.length / CAPS_PER_PAGE);
-    const frac = totalPages > 0 ? (capsPage + 1) / totalPages : 0;
+    const totalPages = Math.ceil(LSHS_QUESTIONS.length / LSHS_PER_PAGE);
+    const frac = totalPages > 0 ? (lshsPage + 1) / totalPages : 0;
     pct = 86 + frac * 8;
   }
 
@@ -2653,7 +2637,7 @@ document.getElementById('btn-setup-next').addEventListener('click', () => {
     pdiData.demographics.sex = participantSex || '';
     pdiData.demographics.age = participantAge || '';
   }
-  if (capsData) capsData.participantID = PID || '';
+  if (lshsData) lshsData.participantID = PID || '';
 
   launchAWSBasic();
 });
@@ -3037,89 +3021,69 @@ function togglePdiScales(index, show){
 }
 
 function showCapsScreen(){
-  if (!capsData) resetQuestionnaireData();
-  capsData.participantID = PID || '';
-  if (!capsData.startedAt) capsData.startedAt = new Date().toISOString();
+  if (!lshsData) resetQuestionnaireData();
+  lshsData.participantID = PID || '';
+  if (!lshsData.startedAt) lshsData.startedAt = new Date().toISOString();
   renderCapsPage();
   showScreen('caps');
 }
 
 function renderCapsPage(){
-  const totalPages = Math.ceil(CAPS_QUESTIONS.length / CAPS_PER_PAGE);
-  capsPage = Math.max(0, Math.min(capsPage, totalPages - 1));
-  const start = capsPage * CAPS_PER_PAGE;
-  const end = Math.min(start + CAPS_PER_PAGE, CAPS_QUESTIONS.length);
+  const totalPages = Math.ceil(LSHS_QUESTIONS.length / LSHS_PER_PAGE);
+  lshsPage = Math.max(0, Math.min(lshsPage, totalPages - 1));
+  const start = lshsPage * LSHS_PER_PAGE;
+  const end = Math.min(start + LSHS_PER_PAGE, LSHS_QUESTIONS.length);
   const container = document.getElementById('caps-questions-container');
-  container.innerHTML = '';
-
+  const LSHS_LABELS = ['Certainly does not apply','Possibly does not apply','Unsure','Possibly applies','Certainly applies'];
+  let html = '';
   for (let i = start; i < end; i++) {
-    const item = capsData.items[i];
-    const block = document.createElement('div');
-    block.className = 'q-block';
-    block.innerHTML = `
+    const item = lshsData.items[i];
+    html += `<div class="q-block">
       <div class="q-question"><span class="q-num">${i+1}.</span>${item.question}</div>
-      <div class="q-yn-row">
-        <label class="q-yn-pill" data-yn-name="caps_${i}_yn"><input type="radio" name="caps_${i}_yn" value="YES" ${item.yes_no==='YES'?'checked':''} onchange="toggleCapsRatings(${i}, true)"><span>YES</span></label>
-        <label class="q-yn-pill" data-yn-name="caps_${i}_yn"><input type="radio" name="caps_${i}_yn" value="NO" ${item.yes_no==='NO'?'checked':''} onchange="toggleCapsRatings(${i}, false)"><span>NO</span></label>
+      <div class="q-yn-row" style="flex-wrap:wrap;gap:8px;margin-top:12px">
+        ${LSHS_LABELS.map((label, val) => `
+          <label class="q-yn-pill lshs-pill${item.rating === String(val) ? ' active' : ''}" style="flex:1;min-width:140px;justify-content:center">
+            <input type="radio" name="lshs_${i}" value="${val}" ${item.rating === String(val) ? 'checked' : ''} onchange="lshsData.items[${i}].rating=this.value;document.querySelectorAll('[data-lshs-q=\'${i}\']').forEach(l=>l.classList.toggle('active',l.querySelector('input').value===this.value))">
+            <span style="font-size:13px;font-weight:600">${label}</span>
+          </label>`).join('')}
       </div>
-      <div class="q-scales" id="caps_ratings_${i}" style="display:${item.yes_no==='YES'?'block':'none'}">
-        <div class="q-scale-group">
-          <div class="q-scale-label">Distress</div>
-          <div class="q-likert">${renderLikertOptions(`caps_${i}_distress`, item.distress)}</div>
-          <div class="q-scale-ends"><span>1 = Not at all distressing</span><span>5 = Very distressing</span></div>
-        </div>
-        <div class="q-scale-group">
-          <div class="q-scale-label">Distracting</div>
-          <div class="q-likert">${renderLikertOptions(`caps_${i}_distracting`, item.distracting)}</div>
-          <div class="q-scale-ends"><span>1 = Not at all distracting</span><span>5 = Completely intrusive</span></div>
-        </div>
-        <div class="q-scale-group">
-          <div class="q-scale-label">Frequency</div>
-          <div class="q-likert">${renderLikertOptions(`caps_${i}_frequency`, item.frequency)}</div>
-          <div class="q-scale-ends"><span>1 = Happens hardly at all</span><span>5 = Happens all the time</span></div>
-        </div>
-      </div>
-    `;
-    container.appendChild(block);
-    setYnPillState(`caps_${i}_yn`);
+    </div>`;
   }
-
-  const capsPct = Math.round(((capsPage + 1) / totalPages) * 100);
-  document.getElementById('caps-progress-text').textContent = `Questions ${start+1}-${end} of ${CAPS_QUESTIONS.length} · ${capsPct}% complete`;
-  document.getElementById('caps-progress-fill').style.width = `${((capsPage+1)/totalPages)*100}%`;
+  container.innerHTML = html;
+  // mark active pills
+  for (let i = start; i < end; i++) {
+    document.querySelectorAll(`input[name="lshs_${i}"]`).forEach(inp => {
+      inp.closest('label').classList.toggle('active', inp.checked);
+      inp.addEventListener('change', function(){
+        document.querySelectorAll(`input[name="lshs_${i}"]`).forEach(r => r.closest('label').classList.toggle('active', r.checked));
+      });
+    });
+  }
+  const lshsPct = Math.round(((lshsPage + 1) / totalPages) * 100);
+  document.getElementById('caps-progress-text').textContent = `Questions ${start+1}-${end} of ${LSHS_QUESTIONS.length} · ${lshsPct}% complete`;
+  document.getElementById('caps-progress-fill').style.width = `${((lshsPage+1)/totalPages)*100}%`;
   updateOverallProgress('caps');
-  document.getElementById('btn-caps-prev').style.display = capsPage > 0 ? 'inline-flex' : 'none';
-  document.getElementById('btn-caps-next').style.display = capsPage < totalPages - 1 ? 'inline-flex' : 'none';
-  document.getElementById('btn-caps-submit').style.display = capsPage === totalPages - 1 ? 'inline-flex' : 'none';
+  document.getElementById('btn-caps-prev').style.display = lshsPage > 0 ? 'inline-flex' : 'none';
+  document.getElementById('btn-caps-next').style.display = lshsPage < totalPages - 1 ? 'inline-flex' : 'none';
+  document.getElementById('btn-caps-submit').style.display = lshsPage === totalPages - 1 ? 'inline-flex' : 'none';
   document.getElementById('caps-error').textContent = '';
 }
 
 function saveCapsPage(){
-  const start = capsPage * CAPS_PER_PAGE;
-  const end = Math.min(start + CAPS_PER_PAGE, CAPS_QUESTIONS.length);
+  const start = lshsPage * LSHS_PER_PAGE;
+  const end = Math.min(start + LSHS_PER_PAGE, LSHS_QUESTIONS.length);
   for (let i = start; i < end; i++) {
-    const yesNo = document.querySelector(`input[name="caps_${i}_yn"]:checked`)?.value || '';
-    capsData.items[i].yes_no = yesNo;
-    if (yesNo === 'YES') {
-      capsData.items[i].distress = document.querySelector(`input[name="caps_${i}_distress"]:checked`)?.value || '';
-      capsData.items[i].distracting = document.querySelector(`input[name="caps_${i}_distracting"]:checked`)?.value || '';
-      capsData.items[i].frequency = document.querySelector(`input[name="caps_${i}_frequency"]:checked`)?.value || '';
-    } else {
-      capsData.items[i].distress = '';
-      capsData.items[i].distracting = '';
-      capsData.items[i].frequency = '';
-    }
+    const checked = document.querySelector(`input[name="lshs_${i}"]:checked`);
+    lshsData.items[i].rating = checked ? checked.value : '';
   }
 }
 
 function validateCapsPage(){
   saveCapsPage();
-  const start = capsPage * CAPS_PER_PAGE;
-  const end = Math.min(start + CAPS_PER_PAGE, CAPS_QUESTIONS.length);
+  const start = lshsPage * LSHS_PER_PAGE;
+  const end = Math.min(start + LSHS_PER_PAGE, LSHS_QUESTIONS.length);
   for (let i = start; i < end; i++) {
-    const item = capsData.items[i];
-    if (!item.yes_no) return false;
-    if (item.yes_no === 'YES' && (!item.distress || !item.distracting || !item.frequency)) return false;
+    if (lshsData.items[i].rating === '') return false;
   }
   return true;
 }
@@ -3212,23 +3176,23 @@ function validatePdiPage(){
 
 document.getElementById('btn-caps-prev').addEventListener('click', () => {
   saveCapsPage();
-  capsPage = Math.max(0, capsPage - 1);
+  lshsPage = Math.max(0, lshsPage - 1);
   renderCapsPage();
 });
 document.getElementById('btn-caps-next').addEventListener('click', () => {
   if (!validateCapsPage()) {
-    document.getElementById('caps-error').textContent = 'Please answer each YES/NO item and complete all ratings for YES responses.';
+    document.getElementById('caps-error').textContent = 'Please rate every item before continuing.';
     return;
   }
-  capsPage += 1;
+  lshsPage += 1;
   renderCapsPage();
 });
 document.getElementById('btn-caps-submit').addEventListener('click', () => {
   if (!validateCapsPage()) {
-    document.getElementById('caps-error').textContent = 'Please answer each YES/NO item and complete all ratings for YES responses.';
+    document.getElementById('caps-error').textContent = 'Please rate every item before continuing.';
     return;
   }
-  capsData.completedAt = new Date().toISOString();
+  lshsData.completedAt = new Date().toISOString();
   if (mainExperimentCompleted) {
     silentUploadBackground('questionnaire'); // Upload 2: questionnaire data with questionnaire, same folder
     openDebriefScreen();
@@ -3238,7 +3202,7 @@ document.getElementById('btn-caps-submit').addEventListener('click', () => {
 });
 
 document.getElementById('btn-pdiinfo-back').addEventListener('click', () => {
-  capsPage = Math.ceil(CAPS_QUESTIONS.length / CAPS_PER_PAGE) - 1;
+  lshsPage = Math.ceil(LSHS_QUESTIONS.length / LSHS_PER_PAGE) - 1;
   renderCapsPage();
   showScreen('caps');
 });
@@ -4851,7 +4815,7 @@ function showMissionSummary(mNum, score, btnText, cb){
 function updateFinalContinueButton(){
   const btn = document.getElementById('btn-final-debrief');
   if (!btn) return;
-  btn.textContent = (capsData && capsData.completedAt) ? 'Save Results →' : 'Continue →';
+  btn.textContent = (lshsData && lshsData.completedAt) ? 'Save Results →' : 'Continue →';
 }
 
 function prepareFinalScreen(){
@@ -4989,7 +4953,7 @@ async function startSavingFlow(){
 }
 
 document.getElementById('btn-final-debrief').addEventListener('click', () => {
-  if (!capsData || !capsData.completedAt) {
+  if (!lshsData || !lshsData.completedAt) {
     showCapsScreen();
     return;
   }
@@ -5015,7 +4979,7 @@ document.getElementById('btn-end-new-session')?.addEventListener('click', ()=>lo
 // ═══════════════════════════════════════════════════════════════════
 const REMOTE_UPLOAD_CFG = Object.freeze({
   enabled: true,
-  endpoint: 'https://script.google.com/macros/s/AKfycbyW7J1ZKP5Eb4HWS8VHJfMb6n1WPL4fjXanTXUBvJruUQP0d3AXoYlhmLlEEwXu6_Nz2g/exec',
+  endpoint: 'https://script.google.com/macros/s/AKfycbxk9nMpNLa6Lzr8upcTggJEgsO0pX2qNjGDmgUBPq4jF-Dc3C43Yja4YZ9STtRW4GGBxg/exec',
   autoUploadOnDebrief: true,
   keepLocalZipDownload: true,
   timeoutMs: 90000,
@@ -5070,7 +5034,7 @@ function buildRemoteSummaryRow(){
     quest_fit_valid: thresholds.fit_valid ?? '',
     awsbasic_passed: awsBasicResult ? awsBasicResult.didPass : '',
     awsbasic_total_correct: awsBasicResult ? awsBasicResult.totalCorrect : '',
-    caps_yes_count: capsYesCount(),
+    lshs_total_score: lshsTotalScore(),
     pdi_yes_count: '',
     debrief_completed_at: debriefData ? (debriefData.completedAt || '') : ''
   };
@@ -5091,7 +5055,7 @@ function buildRemoteUploadPayload(){
   const sessionSummaryCSV = buildSessionSummaryCSV();
   const questionnaireSummaryCSV = buildQuestionnaireSummaryCSV();
   const capsCSV = buildCapsCSV();
-  const capsJSON = JSON.stringify(capsData ? JSON.parse(JSON.stringify(capsData)) : null, null, 2);
+  const capsJSON = JSON.stringify(lshsData ? JSON.parse(JSON.stringify(lshsData)) : null, null, 2);
   const consentSummaryCSV = buildConsentSummaryCSV();
   const consentJSON = JSON.stringify(consentData ? JSON.parse(JSON.stringify(consentData)) : null, null, 2);
   const debriefSummaryCSV = buildDebriefSummaryCSV();
@@ -5127,8 +5091,8 @@ function buildRemoteUploadPayload(){
     // Upload 2: questionnaire files only
     base.text_files = {
       'questionnaires/questionnaire_summary.csv': questionnaireSummaryCSV,
-      'questionnaires/caps_responses.csv': capsCSV,
-      'questionnaires/caps_full.json': capsJSON
+      'questionnaires/lshs_responses.csv': capsCSV,
+      'questionnaires/lshs_full.json': capsJSON
     };
     base.image_data_urls = {};
   } else {
@@ -5349,22 +5313,26 @@ function buildQuestCSV(){
 }
 
 
-function capsYesCount(){
-  return capsData && Array.isArray(capsData.items) ? capsData.items.filter(item => item.yes_no === 'YES').length : 0;
+function lshsTotalScore(){
+  if (!lshsData || !Array.isArray(lshsData.items)) return 0;
+  return lshsData.items.reduce((sum, item) => sum + (item.rating !== '' ? parseInt(item.rating, 10) : 0), 0);
 }
+// alias kept for any remaining refs
+function capsYesCount(){ return lshsTotalScore(); }
 
 function pdiYesCount(){
   return pdiData && Array.isArray(pdiData.items) ? pdiData.items.filter(item => item.response === 'yes').length : 0;
 }
 
 function buildCapsCSV(){
-  const cols = ['ParticipantID','StartedAt','CompletedAt','SkippedForTesting','Item','Question','YesNo','Distress','Distracting','Frequency'];
+  const cols = ['ParticipantID','StartedAt','CompletedAt','SkippedForTesting','Item','Statement','Rating_0to4','TotalScore'];
   const rows = [cols.join(',')];
-  const items = capsData && Array.isArray(capsData.items) ? capsData.items : [];
+  const items = lshsData && Array.isArray(lshsData.items) ? lshsData.items : [];
+  const total = lshsTotalScore();
   items.forEach((item, idx) => {
     rows.push([
-      csvVal(PID), csvVal(capsData ? capsData.startedAt : ''), csvVal(capsData ? capsData.completedAt : ''), csvVal(capsData ? capsData.skippedForTesting : ''),
-      csvVal(idx + 1), csvVal(item.question), csvVal(item.yes_no), csvVal(item.distress), csvVal(item.distracting), csvVal(item.frequency)
+      csvVal(PID), csvVal(lshsData ? lshsData.startedAt : ''), csvVal(lshsData ? lshsData.completedAt : ''), csvVal(lshsData ? lshsData.skippedForTesting : ''),
+      csvVal(idx + 1), csvVal(item.question), csvVal(item.rating), csvVal(idx === 0 ? total : '')
     ].join(','));
   });
   return rows.join('\n');
@@ -5426,13 +5394,13 @@ function buildDebriefSummaryCSV(){
 }
 
 function buildQuestionnaireSummaryCSV(){
-  const cols = ['ParticipantID','CAPS_StartedAt','CAPS_CompletedAt','CAPS_SkippedForTesting','CAPS_YesCount'];
+  const cols = ['ParticipantID','LSHS_StartedAt','LSHS_CompletedAt','LSHS_SkippedForTesting','LSHS_TotalScore'];
   const row = [
     csvVal(PID),
-    csvVal(capsData ? capsData.startedAt : ''),
-    csvVal(capsData ? capsData.completedAt : ''),
-    csvVal(capsData ? capsData.skippedForTesting : ''),
-    csvVal(capsYesCount())
+    csvVal(lshsData ? lshsData.startedAt : ''),
+    csvVal(lshsData ? lshsData.completedAt : ''),
+    csvVal(lshsData ? lshsData.skippedForTesting : ''),
+    csvVal(lshsTotalScore())
   ];
   return cols.join(',') + "\n" + row.join(',');
 }
@@ -5447,7 +5415,7 @@ function buildSessionSummaryCSV(){
     'PIS_ViewedAt','PIS_CompletedAt','Consent_ViewedAt','Consent_CompletedAt','ConsentDate','ConsentGiven',
     'AWSBasic_StartedAt','AWSBasic_CompletedAt','AWSBasic_DidPass','AWSBasic_SkippedForTesting','AWSBasic_TotalCorrect','AWSBasic_TotalTrials',
     'Threshold_ML','Threshold_75','Threshold_50','Threshold_25','QUEST_FitValid','Gamma_Fixed','FA_Rate_Observed',
-    'CAPS_CompletedAt','CAPS_SkippedForTesting','CAPS_YesCount',
+    'LSHS_CompletedAt','LSHS_SkippedForTesting','LSHS_TotalScore',
     'Debrief_ViewedAt','Debrief_CompletedAt',
     'TotalScore','MaxStreak','MissionCount','TotalMainTrials','TotalQuestTrials'
   ];
@@ -5471,7 +5439,7 @@ function buildSessionSummaryCSV(){
     csvVal(pisData ? pisData.viewedAt : ''), csvVal(pisData ? pisData.completedAt : ''), csvVal(consentData ? consentData.viewedAt : ''), csvVal(consentData ? consentData.completedAt : ''), csvVal(consentData ? consentData.date : ''), csvVal(consentData ? consentData.consentGiven : ''),
     csvVal(awsBasicResult ? awsBasicResult.startedAt : ''), csvVal(awsBasicResult ? awsBasicResult.completedAt : ''), csvVal(awsBasicResult ? awsBasicResult.didPass : ''), csvVal(awsBasicResult ? awsBasicResult.skippedForTesting : ''), csvVal(awsBasicResult ? awsBasicResult.totalCorrect : ''), csvVal(awsBasicResult ? awsBasicResult.totalTrials : ''),
     csvVal(thresholds.threshold_ML ?? ''), csvVal(thresholds.threshold_75 ?? snrHigh ?? ''), csvVal(thresholds.threshold_50 ?? snrMedium ?? ''), csvVal(thresholds.threshold_25 ?? snrLow ?? ''), csvVal(thresholds.fit_valid ?? ''), csvVal(thresholds.gamma_fixed ?? ''), csvVal(thresholds.faRate_observed ?? ''),
-    csvVal(capsData ? capsData.completedAt : ''), csvVal(capsData ? capsData.skippedForTesting : ''), csvVal(capsYesCount()),
+    csvVal(lshsData ? lshsData.completedAt : ''), csvVal(lshsData ? lshsData.skippedForTesting : ''), csvVal(lshsTotalScore()),
     csvVal(debriefData ? debriefData.viewedAt : ''), csvVal(debriefData ? debriefData.completedAt : ''),
     csvVal(totalScore), csvVal(maxStreak), csvVal(missionScores.length), csvVal(allTrials.length), csvVal(questResults && questResults.quest_data ? questResults.quest_data.responses.length : 0)
   ];
@@ -5532,8 +5500,8 @@ function buildSessionManifest(){
       figure_png_data_url: questFigureDataUrl || ''
     },
     questionnaires: {
-      caps: {
-        data: capsData ? JSON.parse(JSON.stringify(capsData)) : null,
+      lshs: {
+        data: lshsData ? JSON.parse(JSON.stringify(lshsData)) : null,
         csv: buildCapsCSV()
       },
       summary_csv: buildQuestionnaireSummaryCSV()
@@ -5581,8 +5549,8 @@ function buildReadmeTXT(baseName){
     'quest/quest_trials.csv              Trial-by-trial QUEST data',
     'quest/quest_figure.png              QUEST summary figure',
     'questionnaires/questionnaire_summary.csv  One-row questionnaire summary',
-    'questionnaires/caps_responses.csv   Trial-by-trial CAPS responses',
-    'questionnaires/caps_full.json       Full CAPS response object',
+    'questionnaires/lshs_responses.csv   LSHS-E item-by-item responses',
+    'questionnaires/lshs_full.json       Full LSHS-E response object',
     'main/main_trials.csv                Trial-by-trial main experiment data with per-trial timestamps',
     'main/main_trials_full.json          Full main trial array plus config and scores',
     'main/main_figure.png                Main experiment summary figure',
@@ -5604,8 +5572,8 @@ function buildReadmeTXT(baseName){
     `Threshold 25%: ${questResults ? questResults.threshold_25 : snrLow}`,
     `QUEST ML threshold: ${questResults ? questResults.threshold_ML : 'NA'}`,
     `QUEST fit valid: ${questResults ? questResults.fit_valid : 'NA'}`,
-    `CAPS completed: ${capsData ? (capsData.completedAt || 'NA') : 'NA'}`,
-    `CAPS yes count: ${capsYesCount()}`,
+    `LSHS completed: ${lshsData ? (lshsData.completedAt || 'NA') : 'NA'}`,
+    `LSHS total score: ${lshsTotalScore()}`,
     `Debrief viewed: ${debriefData ? (debriefData.viewedAt || 'NA') : 'NA'}`,
     `Total score: ${totalScore}`,
     `Max streak: ${maxStreak}`,
@@ -5630,7 +5598,7 @@ async function downloadSessionPackage(){
   const sessionSummaryCSV = buildSessionSummaryCSV();
   const questionnaireSummaryCSV = buildQuestionnaireSummaryCSV();
   const capsCSV = buildCapsCSV();
-  const capsJSON = JSON.stringify(capsData ? JSON.parse(JSON.stringify(capsData)) : null, null, 2);
+  const capsJSON = JSON.stringify(lshsData ? JSON.parse(JSON.stringify(lshsData)) : null, null, 2);
   const consentSummaryCSV = buildConsentSummaryCSV();
   const consentJSON = JSON.stringify(consentData ? JSON.parse(JSON.stringify(consentData)) : null, null, 2);
   const debriefSummaryCSV = buildDebriefSummaryCSV();
@@ -5669,8 +5637,8 @@ async function downloadSessionPackage(){
     questFolder.file('quest_log.txt', questLog);
     questFolder.file('quest_trials.csv', questCSV);
     questionnaireFolder.file('questionnaire_summary.csv', questionnaireSummaryCSV);
-    questionnaireFolder.file('caps_responses.csv', capsCSV);
-    questionnaireFolder.file('caps_full.json', capsJSON);
+    questionnaireFolder.file('lshs_responses.csv', capsCSV);
+    questionnaireFolder.file('lshs_full.json', capsJSON);
     mainFolder.file('main_trials.csv', mainCSV);
     mainFolder.file('main_trials_full.json', mainJSON);
 
@@ -5700,8 +5668,8 @@ async function downloadSessionPackage(){
     triggerBlobDownload(new Blob([questLog], {type:'text/plain;charset=utf-8'}), `${baseName}_quest_log.txt`);
     triggerBlobDownload(new Blob([questCSV], {type:'text/csv;charset=utf-8'}), `${baseName}_quest_trials.csv`);
     triggerBlobDownload(new Blob([questionnaireSummaryCSV], {type:'text/csv;charset=utf-8'}), `${baseName}_questionnaire_summary.csv`);
-    triggerBlobDownload(new Blob([capsCSV], {type:'text/csv;charset=utf-8'}), `${baseName}_caps_responses.csv`);
-    triggerBlobDownload(new Blob([capsJSON], {type:'application/json'}), `${baseName}_caps_full.json`);
+    triggerBlobDownload(new Blob([capsCSV], {type:'text/csv;charset=utf-8'}), `${baseName}_lshs_responses.csv`);
+    triggerBlobDownload(new Blob([capsJSON], {type:'application/json'}), `${baseName}_lshs_full.json`);
     triggerBlobDownload(new Blob([mainCSV], {type:'text/csv;charset=utf-8'}), `${baseName}_main_trials.csv`);
     triggerBlobDownload(new Blob([mainJSON], {type:'application/json'}), `${baseName}_main_trials_full.json`);
     const qBlob = dataURLToBlob(questFigureDataUrl);
