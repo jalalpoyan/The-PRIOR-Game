@@ -2205,12 +2205,12 @@ const CFG = {
   postRespWindowSec: 2.00,
   confMaxSec:        0.80,
   trainChunkTrials:  20,
-  trainMinTrials:    20,
+  trainMinTrials:    15,
   trainMaxTrials:    Number.MAX_SAFE_INTEGER,
   trainAccThresh:    0.85,
   trainSNR:          0,
   nMissions:         12,
-  trialsPerMission:  20,
+  trialsPerMission:  15,
   pointsPerCorrect:  1000,
   streakThresholds:  [3, 5, 10, 20, 50],
   streakMultipliers: [1.5, 2.0, 3.0, 5.0, 10.0],
@@ -5330,7 +5330,7 @@ function showTrainProg(nTrial, accPct, cb){
   document.getElementById('tp-label').textContent  = `Training — trial ${nTrial}`;
   document.getElementById('tp-acc').textContent    = `${accPct.toFixed(0)}%`;
   document.getElementById('tp-acc').style.color    = accPct>=CFG.trainAccThresh*100?'#22dd77':'#ff8800';
-  document.getElementById('tp-target').textContent = `Target: ${(CFG.trainAccThresh*100).toFixed(0)}% over last 20 trials`;
+  document.getElementById('tp-target').textContent = `Target: ${(CFG.trainAccThresh*100).toFixed(0)}% over last 15 trials`;
   pendingTrainProgCallback = cb;
   showScreen('trainProg');
   if (trainProgTimeoutId) clearTimeout(trainProgTimeoutId);
