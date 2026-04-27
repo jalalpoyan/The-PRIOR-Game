@@ -86,17 +86,7 @@ html,body{width:100%;height:100%;margin:0;padding:0;overflow:hidden;position:fix
 }
 
 
-/* Mobile document-screen fit fix:
-   keeps PIS/consent continue buttons visible instead of pushing them below viewport. */
-#screen-pis.doc-screen,
-#screen-consent.doc-screen,
-#screen-debrief.doc-screen{
-  max-height:calc(var(--vv-height, 100vh) - 120px);
-  height:calc(var(--vv-height, 100vh) - 120px);
-  padding:0;
-  justify-content:flex-start;
-  overflow:hidden;
-}
+
 #screen-pis .doc-window-shell,
 #screen-consent .doc-window-shell,
 #screen-debrief .doc-window-shell{
@@ -140,6 +130,73 @@ html,body{width:100%;height:100%;margin:0;padding:0;overflow:hidden;position:fix
   #screen-debrief > .btn-row .btn{
     padding:14px 24px;
     font-size:22px;
+  }
+}
+
+
+/* Mobile document-screen scroll fix:
+   the document window scrolls; the Continue/Back buttons stay visible below it. */
+#screen-pis.doc-screen,
+#screen-consent.doc-screen,
+#screen-debrief.doc-screen{
+  height:calc(var(--vv-height, 100vh) - 132px);
+  max-height:calc(var(--vv-height, 100vh) - 132px);
+  min-height:0;
+  padding:0;
+  justify-content:flex-start;
+  overflow:visible;
+}
+
+#screen-pis .doc-window-shell,
+#screen-consent .doc-window-shell,
+#screen-debrief .doc-window-shell{
+  flex:1 1 auto;
+  min-height:0;
+  width:100%;
+  display:flex;
+  flex-direction:column;
+}
+
+#screen-pis .doc-window,
+#screen-consent .doc-window,
+#screen-debrief .doc-window{
+  flex:1 1 auto;
+  min-height:0;
+  max-height:none;
+  height:auto;
+  overflow-y:auto;
+  overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;
+}
+
+#screen-pis > .btn-row,
+#screen-consent > .btn-row,
+#screen-debrief > .btn-row{
+  flex:0 0 auto;
+  width:100%;
+  padding:10px 0 0;
+  margin:0;
+  position:relative;
+  z-index:30;
+}
+
+#screen-consent > .consent-toggle-row,
+#screen-consent > .error-msg{
+  flex:0 0 auto;
+}
+
+@media (max-height:740px){
+  #screen-pis.doc-screen,
+  #screen-consent.doc-screen,
+  #screen-debrief.doc-screen{
+    height:calc(var(--vv-height, 100vh) - 104px);
+    max-height:calc(var(--vv-height, 100vh) - 104px);
+  }
+  #screen-pis > .btn-row .btn,
+  #screen-consent > .btn-row .btn,
+  #screen-debrief > .btn-row .btn{
+    padding:13px 22px;
+    font-size:21px;
   }
 }
 
