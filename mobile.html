@@ -748,6 +748,44 @@ input[type=number].form-input::-webkit-inner-spin-button{opacity:0.4}
 .consent-toggle-inline input{width:24px;height:24px;accent-color:#00d4ff;cursor:pointer}
 .consent-toggle-row{display:none}
 
+/* Mobile-friendly consent checklist: avoids tiny/overlapping image-map tick boxes */
+.doc-page-consent .consent-box{display:none !important}
+.mobile-consent-panel{
+  margin:18px auto 0;width:min(940px,100%);padding:18px;
+  background:#fff;color:#1c2430;border-radius:12px;
+  box-shadow:0 12px 28px rgba(0,0,0,0.18);
+  border:1px solid rgba(18,31,46,0.10)
+}
+.mobile-consent-panel h3{
+  margin:0 0 8px;font-size:20px;line-height:1.25;font-weight:800;color:#12202f
+}
+.mobile-consent-panel p{
+  margin:0 0 14px;font-size:15px;line-height:1.55;color:#405060
+}
+.mobile-consent-list{display:flex;flex-direction:column;gap:10px}
+.mobile-consent-row{
+  display:flex;align-items:flex-start;gap:14px;width:100%;min-height:64px;
+  padding:14px 16px;border-radius:12px;border:2px solid rgba(18,31,46,0.12);
+  background:rgba(20,30,45,0.035);cursor:pointer;touch-action:manipulation;
+  -webkit-tap-highlight-color:rgba(0,212,255,0.18);user-select:none;-webkit-user-select:none
+}
+.mobile-consent-row:active{transform:scale(0.99)}
+.mobile-consent-row.active{
+  border-color:#0f6bff;background:rgba(15,107,255,0.08)
+}
+.mobile-consent-row input{
+  width:32px;height:32px;flex:0 0 32px;margin:1px 0 0;accent-color:#0f6bff;cursor:pointer
+}
+.mobile-consent-row span{
+  font-size:16px;line-height:1.45;font-weight:700;color:#243444
+}
+.mobile-consent-row small{
+  display:inline-flex;align-items:center;justify-content:center;margin-right:8px;
+  width:26px;height:26px;border-radius:999px;background:#eef3f8;color:#12202f;
+  font-size:13px;font-weight:800;flex:0 0 26px
+}
+
+
 /* Larger headphone check text */
 .awsbasic-host #hc-container .hc-calibration-div,
 .awsbasic-host #hc-container .hc-trial-div{font-size:19px !important;line-height:1.65 !important}
@@ -1821,6 +1859,11 @@ button.btn-primary{ width: 100%; }
             <span>Tick all boxes</span>
           </label>
         </div>
+        <div class="mobile-consent-panel" id="mobile-consent-panel">
+          <h3>Tick each consent statement below</h3>
+          <p>These large boxes match the consent statements on the form above and are easier to use on a phone.</p>
+          <div class="mobile-consent-list" id="mobile-consent-list"></div>
+        </div>
       </div>
     </div>
     <div class="error-msg" id="consent-error"></div>
@@ -2203,7 +2246,7 @@ const CFG = {
   itiSec:            0.40,
   feedbackSec:       0.60,
   postRespWindowSec: 2.00,
-  confMaxSec:        0.80,
+  confMaxSec:        1.00,
   trainChunkTrials:  20,
   trainMinTrials:    15,
   trainMaxTrials:    Number.MAX_SAFE_INTEGER,
@@ -2999,12 +3042,57 @@ function syncConsentToggleAll(){
   toggle.indeterminate = !allChecked && checks.some(ch => ch.checked);
 }
 
+function buildMobileConsentChecklist(){
+  const list = document.getElementById('mobile-consent-list');
+  if (!list || list.dataset.built === '1') return;
+  const checks = Array.from(document.querySelectorAll('.consent-check'));
+  list.innerHTML = checks.map((ch, idx) => {
+    const n = ch.dataset.consentIndex || String(idx + 1);
+    const statement = (ch.dataset.statement || '').trim();
+    return `<label class="mobile-consent-row" data-consent-row="${n}">
+      <input type="checkbox" class="mobile-consent-check" data-consent-target="${n}">
+      <span><small>${n}</small>${statement}</span>
+    </label>`;
+  }).join('');
+  list.querySelectorAll('.mobile-consent-check').forEach(ui => {
+    ui.addEventListener('change', () => {
+      const target = ui.dataset.consentTarget;
+      const original = document.querySelector(`.consent-check[data-consent-index="${target}"]`);
+      if (original) original.checked = ui.checked;
+      syncConsentToggleAll();
+      refreshMobileConsentChecklist();
+      document.getElementById('consent-error').textContent = '';
+    });
+  });
+  list.dataset.built = '1';
+}
+
+function refreshMobileConsentChecklist(){
+  const list = document.getElementById('mobile-consent-list');
+  if (!list) return;
+  buildMobileConsentChecklist();
+  list.querySelectorAll('.mobile-consent-check').forEach(ui => {
+    const target = ui.dataset.consentTarget;
+    const original = document.querySelector(`.consent-check[data-consent-index="${target}"]`);
+    const checked = !!(original && original.checked);
+    ui.checked = checked;
+    const row = ui.closest('.mobile-consent-row');
+    if (row) row.classList.toggle('active', checked);
+  });
+}
+
 function prepareConsentScreen(){
   if (!pisData.viewedAt) pisData.viewedAt = new Date().toISOString();
   consentData.viewedAt = consentData.viewedAt || new Date().toISOString();
   document.getElementById('consent-error').textContent = '';
+  buildMobileConsentChecklist();
   syncConsentToggleAll();
+  refreshMobileConsentChecklist();
   showScreen('consent');
+  requestAnimationFrame(() => {
+    const win = document.querySelector('#screen-consent .doc-window');
+    if (win) win.scrollTop = 0;
+  });
 }
 
 document.getElementById('btn-pis-next').addEventListener('click', () => {
@@ -3019,10 +3107,16 @@ document.getElementById('consent-toggle-all').addEventListener('change', (e) => 
   const checked = !!e.target.checked;
   Array.from(document.querySelectorAll('.consent-check')).forEach(ch => { ch.checked = checked; });
   e.target.indeterminate = false;
+  refreshMobileConsentChecklist();
+  document.getElementById('consent-error').textContent = '';
 });
 
 Array.from(document.querySelectorAll('.consent-check')).forEach(ch => {
-  ch.addEventListener('change', syncConsentToggleAll);
+  ch.addEventListener('change', () => {
+    syncConsentToggleAll();
+    refreshMobileConsentChecklist();
+    document.getElementById('consent-error').textContent = '';
+  });
 });
 
 document.getElementById('btn-consent-next').addEventListener('click', () => {
@@ -3484,6 +3578,20 @@ function showCapsScreen(){
   showScreen('caps');
 }
 
+function scrollQuestionnairePageToTop(kind){
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      const container = document.getElementById(kind === 'pdi' ? 'pdi-questions-container' : 'caps-questions-container');
+      const screen = document.getElementById(kind === 'pdi' ? 'screen-pdi' : 'screen-caps');
+      const overlay = document.getElementById('overlay');
+      if (container) container.scrollTop = 0;
+      if (screen) screen.scrollTop = 0;
+      if (overlay) overlay.scrollTop = 0;
+      if (container) container.scrollIntoView({block:'nearest'});
+    });
+  });
+}
+
 function renderCapsPage(){
   const totalPages = Math.ceil(LSHS_QUESTIONS.length / LSHS_PER_PAGE);
   lshsPage = Math.max(0, Math.min(lshsPage, totalPages - 1));
@@ -3525,6 +3633,7 @@ function renderCapsPage(){
   document.getElementById('btn-caps-next').style.display = lshsPage < totalPages - 1 ? 'inline-flex' : 'none';
   document.getElementById('btn-caps-submit').style.display = lshsPage === totalPages - 1 ? 'inline-flex' : 'none';
   document.getElementById('caps-error').textContent = '';
+  scrollQuestionnairePageToTop('caps');
 }
 
 function saveCapsPage(){
@@ -3600,6 +3709,7 @@ function renderPdiPage(){
   document.getElementById('btn-pdi-next').style.display = pdiPage < totalPages - 1 ? 'inline-flex' : 'none';
   document.getElementById('btn-pdi-submit').style.display = pdiPage === totalPages - 1 ? 'inline-flex' : 'none';
   document.getElementById('pdi-error').textContent = '';
+  scrollQuestionnairePageToTop('pdi');
 }
 
 function savePdiPage(){
