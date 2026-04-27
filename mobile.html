@@ -4442,18 +4442,26 @@ async function waitForQuestResumeAfterInterruption() {
   } catch (e) {}
 
   while (!questAbortFlag) {
+    // Wait until page is visible
     if (document.hidden) {
       await delayMs(120);
       continue;
     }
 
-    await unlockAudioAfterReturn();
-    if (audioCtx && audioCtx.state === 'running') {
-      questPausedFlag = false;
-      return;
-    }
+    // Wait for a real user gesture FIRST — iOS requires this before audio can resume
+    await waitForQuestResumeGesture(10000);
 
-    await waitForQuestResumeGesture(650);
+    if (questAbortFlag) break;
+
+    // Now that we have a gesture, try to unlock audio
+    await unlockAudioAfterReturn();
+
+    // Whether or not audioCtx is running, clear flags and let the trial restart.
+    // If audio is still not running the watchdog will catch it on the next trial.
+    questPausedFlag = false;
+    questInterruptedFlag = false;
+    questInterruptionReason = '';
+    return;
   }
   throw new Error('QUEST_ABORT');
 }
