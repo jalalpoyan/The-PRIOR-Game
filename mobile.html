@@ -5499,49 +5499,96 @@ function buildNoSignalTemplates(nTrials) {
 
 function buildBalancedTestPlan() {
   const totalMainTrials = CFG.nMissions * CFG.trialsPerMission;
-  const signalByCode = {1:0,2:0,3:0};
-  let noSignalCount = 0;
-  for (let m = 0; m < CFG.nMissions; m++) {
-    const r = CFG.missionRatios[m];
-    signalByCode[1] += r[0];
-    signalByCode[2] += r[1];
-    signalByCode[3] += r[2];
-    noSignalCount += r[3];
-  }
-
-  const pools = {
-    1: buildSignalTemplatesForSNR(signalByCode[1], 'high', '75%'),
-    2: buildSignalTemplatesForSNR(signalByCode[2], 'medium', '50%'),
-    3: buildSignalTemplatesForSNR(signalByCode[3], 'low', '25%')
-  };
-  const noSignalPool = buildNoSignalTemplates(noSignalCount);
   const bgPool = buildBackgroundAssignment(totalMainTrials);
   let bgIdx = 0;
   const plan = [];
 
+  // Pre-build a balanced rare-Hz pool for the whole experiment so each
+  // rare frequency appears equally often overall.
+  const totalRareSignals = CFG.missionRatios.reduce((s, r) => s + r[0] + r[1] + r[2], 0);
+  // Half of all signal trials will be RARE (exact 50/50 per mission logic below)
+  // Upper-bound the pool; unused entries are discarded.
+  const globalRareHzPool = balancedPool(CFG.uncommonHz.slice(), Math.ceil(totalRareSignals / 2) + 4);
+  let rareHzIdx = 0;
+
   for (let m = 0; m < CFG.nMissions; m++) {
     const r = CFG.missionRatios[m];
+    const nHigh   = r[0];
+    const nMedium = r[1];
+    const nLow    = r[2];
+    const nNone   = r[3];
+    const nSignal = nHigh + nMedium + nLow;
+
+    // ── Guarantee exactly 50/50 COMMON/RARE within this mission's signal trials ──
+    // If nSignal is odd, alternate which type gets the extra trial across missions
+    // so the imbalance is at most 1 across the whole experiment.
+    const nCommon = Math.round(nSignal / 2);
+    const nRare   = nSignal - nCommon;
+
+    // Build a shuffled list of targetClass assignments for this mission's signal slots
+    const classPool = balancedPool(['COMMON', 'RARE'], nSignal);
+    // (balancedPool already shuffles; we use it to get exactly nCommon COMMON and nRare RARE)
+
+    // Build onset pools for this mission's signal trials (balanced early/late)
+    const earlyOnsetOpts = CFG.allowedOnsetMs
+      .filter(ms => (ms / 1000) <= CFG.earlyThresholdSec)
+      .map(ms => ms / 1000);
+    const lateOnsetOpts = CFG.allowedOnsetMs
+      .filter(ms => (ms / 1000) > CFG.earlyThresholdSec && (ms / 1000) <= CFG.noiseDurSec - CFG.toneDurSec)
+      .map(ms => ms / 1000);
+    const earlyLatePool = balancedPool(['EARLY', 'LATE'], nSignal);
+    const nEarly = earlyLatePool.filter(x => x === 'EARLY').length;
+    const nLate  = earlyLatePool.length - nEarly;
+    const earlyOnsets = balancedPool(earlyOnsetOpts, nEarly);
+    const lateOnsets  = balancedPool(lateOnsetOpts,  nLate);
+    let eIdx = 0, lIdx = 0;
+
+    // Assign SNR codes to signal slots: fill high first, then medium, then low
+    const snrCodes = [];
+    for (let i = 0; i < nHigh;   i++) snrCodes.push({ snrLevel: 'high',   detLevel: '75%' });
+    for (let i = 0; i < nMedium; i++) snrCodes.push({ snrLevel: 'medium', detLevel: '50%' });
+    for (let i = 0; i < nLow;    i++) snrCodes.push({ snrLevel: 'low',    detLevel: '25%' });
+    shuffle(snrCodes); // randomise which SNR slots get which class
+
     const missionTrials = [];
-    [1,2,3].forEach(code => {
-      for (let i = 0; i < r[code-1]; i++) {
-        const base = pools[code].pop();
-        missionTrials.push({
-          phase: 'test',
-          mission: m + 1,
-          assignedNoiseFile: bgPool[bgIdx++],
-          isSignal: true,
-          detLevel: base.detLevel,
-          snrLevel: base.snrLevel,
-          markerOnsetSec: base.onsetSec,
-          toneOnsetSec: base.onsetSec,
-          isEarlyTone: base.isEarlyTone,
-          targetClass: base.targetClass,
-          carrierHz: base.carrierHz
-        });
-      }
-    });
-    for (let i = 0; i < r[3]; i++) {
-      const base = noSignalPool.pop();
+
+    // Build each signal trial
+    for (let i = 0; i < nSignal; i++) {
+      const targetClass = classPool[i];
+      const isCommon    = targetClass === 'COMMON';
+      const isEarly     = earlyLatePool[i] === 'EARLY';
+      const onset       = isEarly ? earlyOnsets[eIdx++] : lateOnsets[lIdx++];
+      const carrierHz   = isCommon
+        ? CFG.commonHz
+        : globalRareHzPool[rareHzIdx++ % globalRareHzPool.length];
+      const snr         = snrCodes[i];
+
+      missionTrials.push({
+        phase: 'test',
+        mission: m + 1,
+        assignedNoiseFile: bgPool[bgIdx++],
+        isSignal: true,
+        detLevel: snr.detLevel,
+        snrLevel: snr.snrLevel,
+        markerOnsetSec: onset,
+        toneOnsetSec: onset,
+        isEarlyTone: isEarly,
+        targetClass,
+        carrierHz
+      });
+    }
+
+    // Build no-signal trials for this mission
+    const noSigEarlyLate = balancedPool(['EARLY', 'LATE'], nNone);
+    const nsEarly = noSigEarlyLate.filter(x => x === 'EARLY').length;
+    const nsLate  = nNone - nsEarly;
+    const nsEarlyOnsets = balancedPool(earlyOnsetOpts, nsEarly);
+    const nsLateOnsets  = balancedPool(lateOnsetOpts,  nsLate);
+    let neIdx = 0, nlIdx = 0;
+
+    for (let i = 0; i < nNone; i++) {
+      const isEarly = noSigEarlyLate[i] === 'EARLY';
+      const onset   = isEarly ? nsEarlyOnsets[neIdx++] : nsLateOnsets[nlIdx++];
       missionTrials.push({
         phase: 'test',
         mission: m + 1,
@@ -5549,13 +5596,14 @@ function buildBalancedTestPlan() {
         isSignal: false,
         detLevel: '0%',
         snrLevel: 'none',
-        markerOnsetSec: base.markerOnsetSec,
+        markerOnsetSec: onset,
         toneOnsetSec: NaN,
-        isEarlyTone: base.isEarlyTone,
+        isEarlyTone: isEarly,
         targetClass: 'NOSIGNAL',
         carrierHz: NaN
       });
     }
+
     shuffle(missionTrials);
     missionTrials.forEach(td => plan.push(td));
   }
