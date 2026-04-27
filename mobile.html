@@ -26,6 +26,8 @@ html,body{width:100%;height:100%;margin:0;padding:0;overflow:hidden;position:fix
 
 .screen{display:none;flex-direction:column;align-items:center;width:min(680px,92vw);padding:24px 0;gap:14px}
 .screen.active{display:flex}
+#overlay > .screen:not(.active){display:none !important}
+#overlay > .screen.active{display:flex !important}
 
 /* Typography */
 .logo{font-size:clamp(32px,6vw,58px);font-weight:700;letter-spacing:3px;color:#e8f4f8;font-family:'Share Tech Mono',monospace}
@@ -2984,14 +2986,26 @@ function scrollAWSBasicToTopSoon(){
 
 function showScreen(name) {
   currentScreenName = name || null;
-  Object.values(screenEls).forEach(s => s.classList.remove('active'));
-  if (name) {
+
+  // Hard screen guard: on mobile Safari, stale active/layout state can otherwise
+  // leave parts of the previous screen visible after a transition.
+  Object.values(screenEls).forEach(s => {
+    if (!s) return;
+    s.classList.remove('active');
+    s.setAttribute('aria-hidden', 'true');
+    s.style.display = 'none';
+  });
+
+  if (name && screenEls[name]) {
     screenEls[name].classList.add('active');
+    screenEls[name].setAttribute('aria-hidden', 'false');
+    screenEls[name].style.display = 'flex';
     ol.style.display = 'flex';
     scrollScreenToTopSoon(name);
   } else {
     ol.style.display = 'none';
   }
+
   updateOverallProgress(name);
   updateDevSkipButton();
 }
