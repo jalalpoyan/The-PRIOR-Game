@@ -2210,7 +2210,7 @@ function refreshIntroKeyLabels(){
 }
 
 function isSkipKey(event) {
-  return false;
+  return event.key === '9' || event.code === 'Digit9' || event.code === 'Numpad9';
 }
 
 function buildSkippedQuestResults() {
