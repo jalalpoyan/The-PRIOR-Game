@@ -2369,7 +2369,7 @@ button.btn-primary{ width: 100%; }
       <div class="instr-item">
         <div class="instr-icon">📱</div>
         <div>
-          Tap <strong>Q</strong> for the <strong>low frequency beep</strong> and <strong>E</strong> for the <strong>high frequency beep</strong>.<br>
+          You will hear beeps mixed with background noise. Tap <strong>Q</strong> for the <strong>low-frequency beep</strong> and <strong>E</strong> for the <strong>high-frequency beep</strong>.<br>
           If you do not hear a beep, <strong>do not press anything</strong>.
         </div>
       </div>
@@ -2801,8 +2801,8 @@ function refreshIntroKeyLabels(){
   if (commonEl) commonEl.textContent = kc;
   if (rareEl) rareEl.textContent = kr;
 
-  const commonToneName = COUNTERBALANCE_VERSION === 2 ? 'high frequency beep' : 'low frequency beep';
-  const rareToneName = COUNTERBALANCE_VERSION === 2 ? 'low frequency beep' : 'high frequency beep';
+  const commonToneName = COUNTERBALANCE_VERSION === 2 ? 'high-frequency beep' : 'low-frequency beep';
+  const rareToneName = COUNTERBALANCE_VERSION === 2 ? 'low-frequency beep' : 'high-frequency beep';
   const commonButtonName = 'Q';
   const rareButtonName = 'E';
   const commonDemoName = COUNTERBALANCE_VERSION === 2 ? 'HIGH FREQUENCY TONE' : 'LOW FREQUENCY TONE';
@@ -2813,7 +2813,7 @@ function refreshIntroKeyLabels(){
 
   const introItems = document.querySelectorAll('#screen-intro .instr-item');
   if (introItems[0]) {
-    introItems[0].innerHTML = `<div class="instr-icon">📱</div><div>Press <strong><span class="key-badge" id="intro-common-key">${kc}</span></strong> for the <strong>${commonToneName}</strong> and <strong><span class="key-badge" id="intro-rare-key">${kr}</span></strong> for the <strong>${rareToneName}</strong>.<br>If you do not hear a beep, <strong>do not press anything</strong>.</div>`;
+    introItems[0].innerHTML = `<div class="instr-icon">📱</div><div>You will hear beeps mixed with background noise. Press <strong><span class="key-badge" id="intro-common-key">${kc}</span></strong> for the <strong>${commonToneName}</strong> and <strong><span class="key-badge" id="intro-rare-key">${kr}</span></strong> for the <strong>${rareToneName}</strong>.<br>If you do not hear a beep, <strong>do not press anything</strong>.</div>`;
   }
 
   const demoCommon = document.getElementById('btn-demo-common');
