@@ -2565,7 +2565,7 @@ const CFG = {
   nMissions:         12,
   trialsPerMission:  15,
   pointsPerCorrect:  1000,
-  streakThresholds:  [3, 5, 10, 20, 50],
+  streakThresholds:  [2, 5, 10, 20, 50],
   streakMultipliers: [1.5, 2.0, 3.0, 5.0, 10.0],
   streakNames:       ['HOT STREAK!','ON FIRE!','UNSTOPPABLE!','LEGENDARY!','GODLIKE!'],
   missionRatios: [
@@ -3602,15 +3602,15 @@ function emphasizeAWSBasicPhrases(root){
   const replacements = [
     {
       pattern: /When\s+you\s+hit\s+Play,\s+you\s+will\s+hear\s+three\s+sounds\s+separated\s+by\s+silences?\.\s*Simply\s+judge\s+WHICH\s+SOUND\s+WAS\s+SOFTEST\s*\(quietest\)\s*--\s*1,\s*2,\s*or\s*3\?\s*Test\s+sounds\s+can\s+only\s+be\s+played\s+once!/gi,
-      replace: 'When you hit Play, you will hear three sounds separated by short pauses.\nSelect the softest sound: 1, 2, or 3.\nThe sounds can only be played once!'
+      replace: 'When you press Play, you will hear three sounds separated by silences. Select the quietest sound (lowest in volume): 1, 2, or 3. Each test sound can only be played once.'
     },
     {
       pattern: /When\s+you\s+hit\s+Play,\s+you\s+will\s+hear\s+three\s+sounds\s+separated\s+by\s+silences?\./gi,
-      replace: 'When you hit Play, you will hear three sounds separated by short pauses.'
+      replace: 'When you press Play, you will hear three sounds separated by silences.'
     },
     {
       pattern: /Simply\s+judge\s+WHICH\s+SOUND\s+WAS\s+SOFTEST\s*\(quietest\)\s*--\s*1,\s*2,\s*or\s*3\?/gi,
-      replace: 'Select the softest sound: 1, 2, or 3.'
+      replace: 'Select the quietest sound (lowest in volume): 1, 2, or 3.'
     },
     {
       pattern: /You\s+must\s+be\s+wearing\s+headphones\s+to\s+do\s+this\s+HIT!/gi,
@@ -3628,6 +3628,8 @@ function emphasizeAWSBasicPhrases(root){
       pattern: /Play\s+the\s+calibration\s+sound\s+as\s+many\s+times\s+as\s+you\s+like\.?/gi,
       replace: "Press the 'play' button as many times as you like."
     },
+    { pattern: /set\s+your\s+computer\s+volume\s+to\s+about\s+25%/gi, replace: 'set your volume to about 25%' },
+    { pattern: /Test\s+sounds\s+can\s+only\s+be\s+played\s+once!?/gi, replace: 'Each test sound can only be played once.' },
     { pattern: /FIRST\s+sound\s+was\s+SOFTEST/gi, replace: '1. sound was SOFTEST' },
     { pattern: /SECOND\s+sound\s+was\s+SOFTEST/gi, replace: '2. sound was SOFTEST' },
     { pattern: /THIRD\s+sound\s+was\s+SOFTEST/gi, replace: '3. sound was SOFTEST' }
@@ -5679,7 +5681,7 @@ function drawBase(dots=false){
 }
 
 function drawHUD(){
-  const bW=Math.min(260,W*0.22), bH=20, bX=20, bY=18;
+  const bW=Math.min(260,W*0.22), bH=28, bX=20, bY=18;
   let progress, color, label;
   if(appState==='training'){
     const chunkSize = CFG.trainChunkTrials || CFG.trainMinTrials;
@@ -5716,7 +5718,7 @@ function drawFeedback(){
     if(TD.points>0){
       gc.fillStyle='#ffcc00'; gc.font=`bold ${fs*1.1}px Arial`;
       gc.fillText(`+${TD.points} PTS`, CX, CY);
-      if(streak>=3){
+      if(streak>=2){
         gc.fillStyle='#ff9900'; gc.font=`${fs*0.5}px Arial`;
         gc.fillText(`${streak} IN A ROW!`, CX, CY+fs*0.9);
       }
@@ -6055,7 +6057,7 @@ function finishTraining(){
     `Accuracy: ${acc.toFixed(0)}%`,
     'Begin Test Phase →',
     ()=>showMessage('TEST PHASE BEGINS','Now the real challenge starts!','Start →',()=>{
-      appState='test'; curMission=1; startNextTrial();
+      appState='test'; curMission=1; streak=0; startNextTrial();
     })
   );
 }
@@ -6083,7 +6085,7 @@ function showTrainProg(nTrial, accPct, cb){
 }
 
 function showMissionSummary(mNum, score, btnText, cb){
-  document.getElementById('ms-title').textContent   = `MISSION ${mNum} COMPLETE!`;
+  document.getElementById('ms-title').textContent   = `MISSION ${mNum}/${CFG.nMissions} COMPLETE!`;
   document.getElementById('ms-score').textContent   = `${score} pts`;
   document.getElementById('ms-streak').textContent  = streak>0?`Current Streak: ${streak}`:'';
   document.getElementById('ms-feedback').textContent=
