@@ -3951,11 +3951,6 @@ async function runQuestPractice() {
   let attempt = 1;
 
   while (true) {
-    drawQuestMessage([
-      attempt === 1 ? 'Practice — get ready' : `Practice again (attempt ${attempt})`
-    ]);
-    await sleepWithQuestAbort(2500);
-
     const practiceTrials = [];
     for (let i = 0; i < cfg.nToneTrials; i++) {
       practiceTrials.push({ isCatch: false, correctResponse: 1 });
@@ -4022,13 +4017,6 @@ async function runQuestPractice() {
     const noToneAcc = noToneTotal ? noToneCorrect / noToneTotal : 0;
 
     if (toneAcc >= cfg.passToneThreshold && noToneAcc >= cfg.passNoToneThreshold) {
-      drawQuestMessage([
-        'Practice passed',
-        `Tone trials: ${toneCorrect}/${toneTotal} correct`,
-        `No-tone trials: ${noToneCorrect}/${noToneTotal} correct`,
-        'The tone will be much quieter now. Starting QUEST proper.'
-      ]);
-      await sleepWithQuestAbort(2500);
       return;
     }
 
@@ -4049,8 +4037,6 @@ async function runQuestProcedure() {
   initAudio();
   questRunning = true;
   showScreen(null);
-  drawQuestMessage(['Get ready…', 'The experiment is about to begin.']);
-  await sleepWithQuestAbort(1500);
 
   attachQuestEscapeHandler();
 
