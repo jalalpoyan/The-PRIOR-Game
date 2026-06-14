@@ -2026,10 +2026,12 @@ const QUEST_CFG = {
   },
   // Practice block before QUEST proper (Kafadar et al. 2022: 80% accuracy required)
   practice: {
-    nTrials: 5,           // short block of clearly audible tones
-    toneSnrDB: 0,         // well above threshold so participant can hear clearly
-    passThreshold: 0.80,  // 80% correct required (Kafadar et al. 2022)
-    maxAttempts: 2        // allow one retry before proceeding anyway
+    nTrials: 10,              // 5 clearly audible tone trials + 5 no-tone trials
+    nToneTrials: 5,
+    nNoToneTrials: 5,
+    toneSnrDB: 0,             // well above threshold so participant can hear clearly
+    passToneThreshold: 0.80,  // requires at least 4/5 tone trials correct
+    passNoToneThreshold: 0.80 // requires at least 4/5 no-tone trials correct
   }
 };
 QUEST_CFG.quest.pThreshold = QUEST_CFG.quest.gamma +
@@ -3939,34 +3941,52 @@ function computeKafadarQC(data, threshold75) {
 }
 
 // ─── Practice block before QUEST (Kafadar et al. 2022) ───────────────────────
-// 80% accuracy required on clearly audible tones before QUEST begins.
-// Up to maxAttempts retries; if still failing, proceeds anyway (researcher
-// reviews QC flags in output rather than blocking participant).
+// Requires separate >=80% accuracy on clearly audible tone trials and no-tone
+// catch trials. Practice repeats until passed, so participants cannot enter
+// QUEST proper by pressing YES on every trial.
 async function runQuestPractice() {
-  const cfg  = QUEST_CFG.practice;
-  const nT   = cfg.nTrials;
-  const snr  = cfg.toneSnrDB;
+  const cfg = QUEST_CFG.practice;
+  const snr = cfg.toneSnrDB;
+  const nT  = cfg.nToneTrials + cfg.nNoToneTrials;
+  let attempt = 1;
 
-  for (let attempt = 1; attempt <= cfg.maxAttempts; attempt++) {
+  while (true) {
     drawQuestMessage([
       attempt === 1 ? 'Practice — get ready' : `Practice again (attempt ${attempt})`,
-      'You will hear a short tone in noise. Press Y if you heard it, N if not.'
+      'Sometimes there will be a short tone in the noise.',
+      'Sometimes there will be only background noise.',
+      'Press Y only if you hear the tone. Press N if you hear only noise.'
     ]);
-    await sleepWithQuestAbort(1500);
+    await sleepWithQuestAbort(2500);
 
-    let nCorrect = 0;
+    const practiceTrials = [];
+    for (let i = 0; i < cfg.nToneTrials; i++) {
+      practiceTrials.push({ isCatch: false, correctResponse: 1 });
+    }
+    for (let i = 0; i < cfg.nNoToneTrials; i++) {
+      practiceTrials.push({ isCatch: true, correctResponse: 0 });
+    }
 
-    for (let t = 1; t <= nT; t++) {
-      // All practice trials have a tone at clearly audible SNR — no catch trials
-      const sig = buildQuestSignal(snr, false);
+    // Randomize order so participants must listen on every trial.
+    for (let i = practiceTrials.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [practiceTrials[i], practiceTrials[j]] = [practiceTrials[j], practiceTrials[i]];
+    }
 
-      drawQuestFixation(t, nT);
+    let toneCorrect = 0, toneTotal = 0;
+    let noToneCorrect = 0, noToneTotal = 0;
+
+    for (let t = 0; t < practiceTrials.length; t++) {
+      const trial = practiceTrials[t];
+      const sig = buildQuestSignal(snr, trial.isCatch);
+
+      drawQuestFixation(t + 1, nT);
       await sleepWithQuestAbort(
         (QUEST_CFG.timing.fixationMin +
           Math.random() * (QUEST_CFG.timing.fixationMax - QUEST_CFG.timing.fixationMin)) * 1000
       );
 
-      drawQuestListening(t, nT);
+      drawQuestListening(t + 1, nT);
       const respStart = performance.now();
       const collector = createQuestResponseCollector(respStart);
       playAudio(sig.audioBuf);
@@ -3982,36 +4002,47 @@ async function runQuestPractice() {
       stopAudio();
 
       if (!resp) {
-        drawQuestQuestion(t, nT);
+        drawQuestQuestion(t + 1, nT);
         resp = await collector.wait();
       }
       collector.dispose();
 
       if (!resp || resp.response === -2 || questAbortFlag) throw new Error('QUEST_ABORT');
 
-      // Correct = participant said yes (tone was always present)
-      if (resp.response === 1) nCorrect++;
+      const isCorrect = resp.response === trial.correctResponse;
+      if (trial.isCatch) {
+        noToneTotal++;
+        if (isCorrect) noToneCorrect++;
+      } else {
+        toneTotal++;
+        if (isCorrect) toneCorrect++;
+      }
+
       await sleepWithQuestAbort(QUEST_CFG.timing.iti * 1000);
     }
 
-    const acc = nCorrect / nT;
-    if (acc >= cfg.passThreshold) {
-      drawQuestMessage([
-        `Practice passed — ${nCorrect}/${nT} correct`,
-        'The tone will be much quieter now. Press any key to begin.'
-      ]);
-      await sleepWithQuestAbort(2000);
-      return; // passed
-    }
+    const toneAcc = toneTotal ? toneCorrect / toneTotal : 0;
+    const noToneAcc = noToneTotal ? noToneCorrect / noToneTotal : 0;
 
-    if (attempt < cfg.maxAttempts) {
+    if (toneAcc >= cfg.passToneThreshold && noToneAcc >= cfg.passNoToneThreshold) {
       drawQuestMessage([
-        `Practice: ${nCorrect}/${nT} correct — let's try again`,
-        'Make sure headphones are on and volume is set to at least 50%.'
+        'Practice passed',
+        `Tone trials: ${toneCorrect}/${toneTotal} correct`,
+        `No-tone trials: ${noToneCorrect}/${noToneTotal} correct`,
+        'The tone will be much quieter now. Starting QUEST proper.'
       ]);
       await sleepWithQuestAbort(2500);
+      return;
     }
-    // If all attempts used, fall through and proceed — flagged in QC output
+
+    drawQuestMessage([
+      "Practice not passed — let\'s try again",
+      `Tone trials: ${toneCorrect}/${toneTotal} correct`,
+      `No-tone trials: ${noToneCorrect}/${noToneTotal} correct`,
+      'Remember: press Y only for the tone. Press N for background noise only.'
+    ]);
+    await sleepWithQuestAbort(3500);
+    attempt++;
   }
 }
 
