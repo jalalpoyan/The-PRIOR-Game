@@ -3952,10 +3952,7 @@ async function runQuestPractice() {
 
   while (true) {
     drawQuestMessage([
-      attempt === 1 ? 'Practice — get ready' : `Practice again (attempt ${attempt})`,
-      'Sometimes there will be a short tone in the noise.',
-      'Sometimes there will be only background noise.',
-      'Press Y only if you hear the tone. Press N if you hear only noise.'
+      attempt === 1 ? 'Practice — get ready' : `Practice again (attempt ${attempt})`
     ]);
     await sleepWithQuestAbort(2500);
 
@@ -4038,8 +4035,7 @@ async function runQuestPractice() {
     drawQuestMessage([
       "Practice not passed — let\'s try again",
       `Tone trials: ${toneCorrect}/${toneTotal} correct`,
-      `No-tone trials: ${noToneCorrect}/${noToneTotal} correct`,
-      'Remember: press Y only for the tone. Press N for background noise only.'
+      `No-tone trials: ${noToneCorrect}/${noToneTotal} correct`
     ]);
     await sleepWithQuestAbort(3500);
     attempt++;
