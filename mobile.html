@@ -5084,10 +5084,13 @@ async function runQuestPractice() {
       return;
     }
 
+    const overallCorrect = toneCorrect + noToneCorrect;
+    const overallTotal = toneTotal + noToneTotal;
+    const overallPct = overallTotal ? Math.round((overallCorrect / overallTotal) * 100) : 0;
+
     drawQuestMessage([
       "Practice not passed — let\'s try again",
-      `Tone trials: ${toneCorrect}/${toneTotal} correct`,
-      `No-tone trials: ${noToneCorrect}/${noToneTotal} correct`
+      `Overall accuracy: ${overallPct}%`
     ]);
     await sleepWithQuestAbort(3500);
     attempt++;
