@@ -2396,6 +2396,22 @@ button.btn-primary{ width: 100%; }
     <button class="btn btn-primary" id="btn-intro-start">Begin Training →</button>
   </div>
 
+  <!-- ═══ COMPREHENSION CHECK SCREEN ═══ -->
+  <div id="screen-comprehension" class="screen">
+    <div class="logo" style="font-size:34px;text-align:center">QUICK CHECK</div>
+    <div class="card" style="text-align:center;max-width:620px">
+      <div style="font-size:24px;font-weight:700;color:#e8f4f8;line-height:1.35;margin-bottom:14px">
+        What should you do if you hear no beep?
+      </div>
+      <div class="btn-row" style="flex-direction:column;align-items:stretch;gap:12px">
+        <button class="btn btn-secondary" type="button" data-comprehension-choice="q" style="width:100%;text-transform:none">Press Q</button>
+        <button class="btn btn-secondary" type="button" data-comprehension-choice="e" style="width:100%;text-transform:none">Press E</button>
+        <button class="btn btn-secondary" type="button" data-comprehension-choice="withhold" style="width:100%;text-transform:none">Nothing / withhold — wait for the trial to end</button>
+      </div>
+      <div class="error-msg" id="comprehension-error" style="margin-top:14px;min-height:20px"></div>
+    </div>
+  </div>
+
   <!-- ═══ GENERIC MESSAGE SCREEN ═══ -->
   <div id="screen-message" class="screen">
     <div class="logo" id="msg-title" style="font-size:38px;text-align:center"></div>
@@ -3142,6 +3158,7 @@ const screenEls = {
   pdiInfo:      document.getElementById('screen-pdi-info'),
   pdi:          document.getElementById('screen-pdi'),
   intro:        document.getElementById('screen-intro'),
+  comprehension: document.getElementById('screen-comprehension'),
   message:      document.getElementById('screen-message'),
   trainProg:    document.getElementById('screen-train-prog'),
   mission:      document.getElementById('screen-mission'),
@@ -3169,6 +3186,7 @@ function getOverallProgressState(name) {
     questPrep: 34,
     questIntro: 38,
     intro: 48,
+    comprehension: 50,
     final: 78,
     caps: 86,
     saving: 96,
@@ -4251,12 +4269,42 @@ document.getElementById('btn-demo-rare').addEventListener('click', () => {
 });
 refreshIntroKeyLabels();
 
-document.getElementById('btn-intro-start').addEventListener('click', () => {
+function beginTrainingFromComprehension() {
   initAudio();
   testPlan = buildBalancedTestPlan();
   showScreen(null);
   appState = 'training';
   startNextTrial();
+}
+
+function resetComprehensionCheck() {
+  const err = document.getElementById('comprehension-error');
+  if (err) err.textContent = '';
+}
+
+function handleComprehensionChoice(choice) {
+  const err = document.getElementById('comprehension-error');
+
+  if (choice === 'withhold') {
+    if (err) err.textContent = '';
+    beginTrainingFromComprehension();
+    return;
+  }
+
+  if (err) {
+    err.textContent = 'Not quite. If no beep is played, the correct response is to do nothing and wait for the trial to end.';
+  }
+}
+
+document.getElementById('btn-intro-start').addEventListener('click', () => {
+  resetComprehensionCheck();
+  showScreen('comprehension');
+});
+
+document.querySelectorAll('[data-comprehension-choice]').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    handleComprehensionChoice(btn.dataset.comprehensionChoice);
+  });
 });
 
 // ═══════════════════════════════════════════════════════════════════
